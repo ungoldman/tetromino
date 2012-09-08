@@ -6,7 +6,8 @@ module.exports = Player = function(io, socket, world, cb) {
   var player = {
     id: 'p'+autoId++,
     score: 0,
-    piece: null
+    piece: null,
+    username: null //db.getUsername() ??
   };
 
   socket.playerId = player.id;

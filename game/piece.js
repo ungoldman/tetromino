@@ -127,58 +127,54 @@ Piece.prototype.randomType = function(){
   return Math.floor(Math.random() * pieces.length);
 }
 
-Piece.prototype.render = function(context) {
-  var color = this.color;
-  this.eachSlot(function(i, j) {
-    context.fillStyle = color;
-    context.fillRect (j * 20, i * 20, 20, 20);
-  });
-}
-
 Piece.prototype.fall = function() {
-  oldY = this.y;
+  var oldY = this.y;
   this.y += 1;
+  // this is checking if the new Y coordinate is causing a collision
   if (this.checkCollision()) {
     this.y = oldY;
     grid.populate(this);
     grid.checkLines();
+    // this is creating a new piece and checking if it it's causing a collision
     piece = new Piece();
     if (piece.checkCollision()) {
+      // if the new piece is colliding with something right away, it's game over
       gameOver();
       piece = null;
-      render();
     }
   }
-  render();
 }
 
 Piece.prototype.move = function(x) {
   oldX = this.x;
   this.x += x;
   if (this.checkCollision()) this.x = oldX;
-  render();
+  return this;
 }
 
 Piece.prototype.rotate = function() {
-  oldRotation = this.rotation;
+  var oldRotation = this.rotation;
   this.rotation = (this.rotation +1) % this.grids.length;
   if (this.checkCollision()) this.rotation = oldRotation;
-  render();
+  return this;
 }
 
 Piece.prototype.checkCollision = function() {
   var result = false;
   this.eachSlot(function(i, j) {
-    if (j < 0 || j > grid.width -1 || i > grid.height -1 || grid.array[i][j] != null) result = true;
+    if (j < 0 || j > grid.width -1 ||
+        i > grid.height -1 || grid.array[i][j] != null) {
+      result = true;
+    }
   });
   return result;
 }
 
-Piece.prototype.eachSlot = function(closure) {
+Piece.prototype.eachSlot = function(callback) {
   for (i = 0 ; i < this.grids[this.rotation].length; i++) {
     for (j = 0; j < this.grids[this.rotation][i].length; j++) {
       if (this.grids[this.rotation][i][j] == 1) {
-        closure(this.y + i, this.x + j);
+        callback(this.y + i, this.x + j);
       }
     }
   }
