@@ -131,14 +131,16 @@ var pieces = [
 Piece.prototype.randomType = function(){
   return Math.floor(Math.random() * pieces.length);
 }
-
+// piece.fall()
 Piece.prototype.fall = function() {
   var oldY = this.y;
   this.y += 1;
   // this is checking if the new Y coordinate is causing a collision
   if (this.checkCollision()) {
     this.y = oldY;
+    // Lock piece to grid
     grid.populate(this);
+    // Check to see if any line were completed
     grid.checkLines();
     // this is creating a new piece and checking if it it's causing a collision
     piece = new Piece();
@@ -149,11 +151,15 @@ Piece.prototype.fall = function() {
     }
   }
 }
-
+// piece.move()
 Piece.prototype.move = function(x) {
-  oldX = this.x;
+  // Grab current position
+  var oldX = this.x;
+  // Add the increment of either +1 or -1 to the piece's current position
   this.x += x;
+  // If this causes a collision, give the piece it's old x position
   if (this.checkCollision()) this.x = oldX;
+  // Returns the piece itself
   return this;
 }
 
