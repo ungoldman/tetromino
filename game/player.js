@@ -1,13 +1,14 @@
+var Piece = require('./piece');
 var autoId = 0;
 
-module.exports = Player = function(io, socket, world, cb) {
+module.exports = Player = function(io, socket, world, user, cb) {
   var self = this;
 
   var player = {
-    id: 'p'+autoId++,
+    id: 'player'+autoId++,
     score: 0,
     piece: null,
-    username: null //db.getUsername() ??
+    username: user.name
   };
 
   socket.playerId = player.id;
@@ -26,10 +27,16 @@ module.exports = Player = function(io, socket, world, cb) {
   socket.on('move-left', function(){
     var piece = self.piece;
     if (piece) {
-      if (piece.isCool()) {
-        piece.update('left');
-        world.grid.update(piece);
-      }
+      piece.move('left');
+      world.grid.update(piece);
+    }
+  });
+
+  socket.on('move-right', function(){
+    var piece = self.piece;
+    if (piece) {
+      piece.move('right');
+      world.grid.update(piece);
     }
   });
 

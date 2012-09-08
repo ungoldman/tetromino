@@ -3,7 +3,7 @@ var Grid = require('./grid');
 var Player = require('./player');
 var Piece = require('./piece');
 
-var game = function(io) {
+var game = function(io, user) {
 
   var speed = 1;
 
@@ -13,7 +13,7 @@ var game = function(io) {
   world.pieces = [];
 
   var addPlayer = function(io, socket) {
-    world.players.push(new Player(io, socket, world));
+    world.players.push(new Player(io, socket, world, user));
   };
 
   var removePlayer = function(socket) {
@@ -45,8 +45,8 @@ var game = function(io) {
 };
 
 module.exports = {
-  listen: function(server) {
+  listen: function(server, user) {
     var io = socketio.listen(server, { "log level": 1 });
-    return game(io);
+    return game(io, user);
   }
 };

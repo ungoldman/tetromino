@@ -1,8 +1,22 @@
 var autoId = 0;
 
+var Piece = function(){};
+
+Piece.protoype = function(){
+  var type = this.randomType();
+  this.id = 'piece'+autoId++;
+  this.y = 4;
+  this.x = 0;
+  this.rotation = 0;
+  this.positions = pieces[type].positions;
+  this.color = pieces[type].color;
+}
+
+// this is the array that determines all shapes
+// positions represent the different rotations of each piece
 var pieces = [
   {
-    grids: [[
+    positions: [[
       [0, 1, 0],
       [1, 1, 1],
       [0, 0, 0]
@@ -21,13 +35,13 @@ var pieces = [
     ]], 
     color: '#f00'
   }, {
-    grids: [[
+    positions: [[
       [1, 1],
       [1, 1]
     ]],
     color: '#0f0'
   }, {
-    grids: [[
+    positions: [[
       [0, 1, 1, 0],
       [0, 1, 0, 0],
       [0, 1, 0, 0],
@@ -50,7 +64,7 @@ var pieces = [
     ]],
     color: '#00f'
   }, {
-    grids: [[
+    positions: [[
       [1, 1, 0, 0],
       [0, 1, 0, 0],
       [0, 1, 0, 0],
@@ -73,7 +87,7 @@ var pieces = [
     ]],
     color: '#0ff'
   }, {
-    grids: [[
+    positions: [[
       [0, 1, 0, 0],
       [0, 1, 0, 0],
       [0, 1, 0, 0],
@@ -86,7 +100,7 @@ var pieces = [
     ]],
     color: '#ccc'
   }, {
-    grids: [[
+    positions: [[
       [0, 1, 1, 0],
       [1, 1, 0, 0],
       [0, 0, 0, 0],
@@ -99,7 +113,7 @@ var pieces = [
     ]],
     color: '#f0f'
   }, {
-    grids: [[
+    positions: [[
       [1, 1, 0, 0],
       [0, 1, 1, 0],
       [0, 0, 0, 0],
@@ -113,15 +127,6 @@ var pieces = [
     color: '#fc9'
   }
 ];
-
-module.exports = Piece = function() {
-  var type = this.randomType();
-  this.y = 4;
-  this.x = 0;
-  this.rotation = 0;
-  this.grids = pieces[type].grids;
-  this.color = pieces[type].color;
-}
 
 Piece.prototype.randomType = function(){
   return Math.floor(Math.random() * pieces.length);
@@ -152,30 +157,48 @@ Piece.prototype.move = function(x) {
   return this;
 }
 
-Piece.prototype.rotate = function() {
+// piece.rotate accepts a direction parameter of 'left' or 'right' (or -1).
+// It then changes the position of the piece accordingly. If a collision is
+// detected, it reverts back to the old rotation.
+Piece.prototype.rotate = function(direction) {
+  // defaults to 1, equivalent of right rotation.
+  var increment = direction == ('left' || -1) ? -1 : 1;
+  // temporarily save old rotation
   var oldRotation = this.rotation;
-  this.rotation = (this.rotation +1) % this.grids.length;
-  if (this.checkCollision()) this.rotation = oldRotation;
+  // modulus makes sure rotation is always between 0 and 3
+  this.rotation = (this.rotation + increment) % this.positions.length;
+  // collision check
+  if (this.checkCollision()) {
+    // set to old rotation if collision is detected
+    this.rotation = oldRotation;
+  }
+  // return piece
   return this;
 }
 
+// piece.checkCollision compares the current state of the piece to the grid
+// to make sure there is no overlap. It returns true if a collision is detected.
 Piece.prototype.checkCollision = function() {
   var result = false;
   this.eachSlot(function(i, j) {
-    if (j < 0 || j > grid.width -1 ||
-        i > grid.height -1 || grid.array[i][j] != null) {
+    if (j < 0 || j > grid.width -1 || i > grid.height -1 || grid.array[i][j] != null) {
       result = true;
     }
   });
   return result;
 }
 
+// Piece.eachSlot allows you to cycle through the array
+// representing the current position of the piece and pass a callback at
+// each interval
 Piece.prototype.eachSlot = function(callback) {
-  for (i = 0 ; i < this.grids[this.rotation].length; i++) {
-    for (j = 0; j < this.grids[this.rotation][i].length; j++) {
-      if (this.grids[this.rotation][i][j] == 1) {
+  for (i = 0 ; i < this.positions[this.rotation].length; i++) {
+    for (j = 0; j < this.positions[this.rotation][i].length; j++) {
+      if (this.positions[this.rotation][i][j] == 1) {
         callback(this.y + i, this.x + j);
       }
     }
   }
 }
+
+module.exports = Piece;
