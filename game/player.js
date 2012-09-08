@@ -9,58 +9,7 @@ module.exports = Player = function(io, socket, world, user, cb) {
   this.piece = null;
   this.username = user.name;
 
-  socket.playerId = player.id;
-
-  this.getPiece();
-
-  socket.emit('game-enter', {
-    grid: world.grid.cells,
-    player: self,
-    others: world.players
-  });
-
-  // io.sockets.emit('player-joined', { player: player });
-  // io.sockets.emit('player-moved',  { player: player });
-
-  socket.on('move-left', function(){
-    if (player.piece) {
-      player.piece.move('left');
-      world.grid.update(self.piece);
-      socket.emit('player-moved', { player: self });
-    }
-  });
-
-  socket.on('move-right', function(){
-    if (self.piece) {
-      self.piece.move('right');
-      world.grid.update(self.piece);
-      socket.emit('player-moved', { player: self });
-    }
-  });
-
-  socket.on('move-down', function(){
-    if (self.piece) {
-      self.piece.fall();
-      world.grid.update(self.piece);
-      socket.emit('player-moved', { player: self });
-    }
-  });
-
-  socket.on('rotate-left', function(){
-    if (self.piece) {
-      self.piece.rotate('left');
-      world.grid.update(self.piece);
-      socket.emit('player-moved', { player: self });
-    }
-  });
-
-  socket.on('rotate-right', function(){
-    if (self.piece) {
-      self.piece.rotate('right');
-      world.grid.update(self.piece);
-      socket.emit('player-moved', { player: self });
-    }
-  });
+  socket.playerId = this.id;
 
   this.getPiece = function() {
     self.piece = new Piece();
@@ -74,6 +23,41 @@ module.exports = Player = function(io, socket, world, user, cb) {
     // write later
     // destroy player because game is over, not because they quit
   }
+
+  this.getPiece();
+
+  socket.emit('game-enter', {
+    grid: world.grid.cells,
+    player: self,
+    others: world.players
+  });
+
+  // io.sockets.emit('player-joined', { player: player });
+  // io.sockets.emit('player-moved',  { player: player });
+
+  socket.on('player-move', function(data){
+    if (player.piece) {
+      self.piece.move(data.direction);
+      world.grid.update(self.piece);
+      socket.emit('player-moved', { player: self });
+    }
+  });
+
+  socket.on('player-fall', function(){
+    if (self.piece) {
+      self.piece.fall();
+      world.grid.update(self.piece);
+      socket.emit('player-moved', { player: self });
+    }
+  });
+
+  socket.on('player-rotate', function(data){
+    if (self.piece) {
+      self.piece.rotate(data.direction);
+      world.grid.update(self.piece);
+      socket.emit('player-moved', { player: self });
+    }
+  });
 
   return this;
 };

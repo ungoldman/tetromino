@@ -1,6 +1,6 @@
 var autoId = 0;
 
-module.exports = {
+module.exports = function() {
   return {
     id: 't'+autoId++,
     navigable: true

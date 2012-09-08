@@ -17,7 +17,7 @@ module.exports = function(width, height) {
 
   return {
     cells: rows,
-    isNavigable: function(x, y) {
+    checkCollision: function(x, y) {
       if (x < 0 || x >= width || y < 0 || y >= height) return false;
       return rows[y][x].navigable;
     }

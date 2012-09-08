@@ -31,6 +31,7 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
+app.get('/test', routes.test);
 
 var server = http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
@@ -40,4 +41,4 @@ var user = {
   name: 'Chuck'
 }
 
-var game = require('./lib/game').listen(server, user);
+var game = require('./game').listen(server, user);
