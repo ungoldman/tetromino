@@ -36,7 +36,7 @@ module.exports = Player = function(io, socket, world, user, cb) {
   // io.sockets.emit('player-moved',  { player: player });
 
   socket.on('player-move', function(data){
-    if (player.piece) {
+    if (self.piece) {
       self.piece.move(data.direction);
       world.grid.update(self.piece);
       socket.emit('player-moved', { player: self });

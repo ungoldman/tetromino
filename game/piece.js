@@ -1,8 +1,6 @@
 var autoId = 0;
 
-var Piece = function(){};
-
-Piece.protoype = function(){
+var Piece = function(){
   var type = this.randomType();
   this.id = 'piece'+autoId++;
   this.y = 4;
@@ -10,7 +8,7 @@ Piece.protoype = function(){
   this.rotation = 0;
   this.positions = pieces[type].positions;
   this.color = pieces[type].color;
-}
+};
 
 // this is the array that determines all shapes
 // positions represent the different rotations of each piece
@@ -131,6 +129,7 @@ var pieces = [
 Piece.prototype.randomType = function(){
   return Math.floor(Math.random() * pieces.length);
 }
+
 // piece.fall()
 Piece.prototype.fall = function() {
   var oldY = this.y;
