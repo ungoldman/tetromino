@@ -143,7 +143,7 @@ Piece.prototype.fall = function() {
     // Check to see if any line were completed
     grid.checkLines();
     // this is creating a new piece and checking if it it's causing a collision
-    piece = new Piece();
+    var piece = new Piece();
     if (piece.checkCollision()) {
       // if the new piece is colliding with something right away, it's game over
       gameOver();
@@ -152,11 +152,12 @@ Piece.prototype.fall = function() {
   }
 }
 // piece.move()
-Piece.prototype.move = function(x) {
+Piece.prototype.move = function(direction) {
+  var increment = direction == ('left' || -1) ? -1 : 1;
   // Grab current position
   var oldX = this.x;
   // Add the increment of either +1 or -1 to the piece's current position
-  this.x += x;
+  this.x += increment;
   // If this causes a collision, give the piece it's old x position
   if (this.checkCollision()) this.x = oldX;
   // Returns the piece itself
