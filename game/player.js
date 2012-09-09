@@ -58,10 +58,8 @@ module.exports = Player = function(io, socket, world, user, cb) {
           return;
         }
         self.piece.eachSlot(function(x,y){
-          console.log(x,y);
           world.grid.cells[y][x].navigable = false;
           world.grid.cells[y][x].color = '#777' || self.piece.color;
-          console.log(world.grid.cells[y][x]);
         });
         piece = self.getPiece();
         if (!piece) world.reset();
