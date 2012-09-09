@@ -78,14 +78,14 @@ var game = function(io, user) {
     }
 
     if (linesToClear.length > 0) {
-      linesToClear.forEach(function(line){
-        world.clearLine(line);
+      linesToClear.reverse().forEach(function(line){
+        clearLine(line);
       });
       io.sockets.emit('grid-updated', { grid: world.grid.cells });
     }
   }
 
-  world.clearLine = function(line) {
+  function clearLine(line) {
     world.grid.cells.splice(line, 1);
     world.grid.cells.unshift(new Grid(11,1).cells[0]);
   }
