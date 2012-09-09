@@ -3,8 +3,8 @@ var autoId = 0;
 module.exports = Piece = function(){
   var type = this.randomType();
   this.id = 'piece'+autoId++;
-  this.y = 4;
-  this.x = 0;
+  this.y = 0;
+  this.x = 4;
   this.rotation = 0;
   this.positions = pieces[type].positions;
   this.color = pieces[type].color;
@@ -139,24 +139,28 @@ Piece.prototype.randomType = function(){
 }
 
 // piece.fall()
-Piece.prototype.fall = function() {
+Piece.prototype.fall = function(grid) {
+  // save old vertical position
   var oldY = this.y;
+  // increment vertical position by 1
   this.y += 1;
   // this is checking if the new Y coordinate is causing a collision
-  if (this.checkCollision()) {
+  if (this.checkCollision(grid)) {
     this.y = oldY;
     // Lock piece to grid
-    grid.populate(this);
+    // grid.populate(this);
     // Check to see if any line were completed
-    grid.checkLines();
+    // grid.checkLines();
     // this is creating a new piece and checking if it it's causing a collision
-    var piece = new Piece();
-    if (piece.checkCollision()) {
+    // var piece = new Piece();
+    // if (piece.checkCollision()) {
       // if the new piece is colliding with something right away, it's game over
-      gameOver();
-      piece = null;
-    }
+      // gameOver();
+      // piece = null;
+    // }
   }
+  // Returns the piece itself
+  return this;
 }
 // piece.move()
 Piece.prototype.move = function(direction, grid) {
@@ -175,15 +179,17 @@ Piece.prototype.move = function(direction, grid) {
 // piece.rotate accepts a direction parameter of 'left' or 'right' (or -1).
 // It then changes the position of the piece accordingly. If a collision is
 // detected, it reverts back to the old rotation.
-Piece.prototype.rotate = function(direction) {
+Piece.prototype.rotate = function(direction, grid) {
   // defaults to 1, equivalent of right rotation.
   var increment = direction == ('left' || -1) ? -1 : 1;
   // temporarily save old rotation
   var oldRotation = this.rotation;
   // modulus makes sure rotation is always between 0 and 3
   this.rotation = (this.rotation + increment) % this.positions.length;
+  // make sure rotation is positive
+  if (this.rotation == -1) this.rotation = this.positions.length - 1;
   // collision check
-  if (this.checkCollision()) {
+  if (this.checkCollision(grid)) {
     // set to old rotation if collision is detected
     this.rotation = oldRotation;
   }
@@ -207,7 +213,7 @@ Piece.prototype.checkCollision = function(grid) {
 // representing the current position of the piece and pass a callback at
 // each interval
 Piece.prototype.eachSlot = function(callback) {
-  for (i = 0 ; i < this.positions[this.rotation].length; i++) {
+  for (i = 0; i < this.positions[this.rotation].length; i++) {
     for (j = 0; j < this.positions[this.rotation][i].length; j++) {
       if (this.positions[this.rotation][i][j] == 1) {
         callback(this.x + i, this.y + j);

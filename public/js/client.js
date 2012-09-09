@@ -1,8 +1,9 @@
-var socket = io.connect(window.location.hostname);
+var socket  = io.connect(window.location.hostname);
+var canvas  = $('#canvas').get(0);
+var context = canvas.getContext("2d");
 var world;
 
 socket.on('game-enter', function(data){
-  console.log('game entered', data);
   world = data;
 
   var directions = ['left','right'];
@@ -10,21 +11,30 @@ socket.on('game-enter', function(data){
   $.map(directions, function(direction, index){
     key(direction, function(e) {
       e.preventDefault();
-      console.log('player moving', direction);
       socket.emit('player-move', { direction: directions[index] });
     });
   });
 
   key('down', function(e){
     e.preventDefault();
-    console.log('player moving down');
     socket.emit('player-fall');
   });
 
+  key('q', function(e){
+    e.preventDefault();
+    socket.emit('player-rotate', { direction: 'left' });
+  });
+
+  key('e', function(e){
+    e.preventDefault();
+    socket.emit('player-rotate', { direction: 'right' });
+  });
+
+  render();
 });
 
 socket.on('player-moved', function(data) {
-  console.log('player moved', data);
+  world.player.piece = data.player.piece;
   // var you = false;
   // if(data.player.id === world.player.id) {
   //   world.player.location = data.player.location;
@@ -32,89 +42,67 @@ socket.on('player-moved', function(data) {
   //   you = true;
   // }
   // renderPlayer(data.player, you);
+  render();
 });
 
 socket.on('player-quit', function(data){
   //removePlayer(data.player);
   console.log('player quit', data);
+  render();
 });
 
-/* Helper Methods */
-
-var renderMap= function(map) {
-  $world = $(".world");
-  $world.empty();
-  for(var i = 0; i < map.length; i++) {
-    $row = $("<div>").addClass("row");
-    $world.append($row);
-    for(var j = 0; j < map[i].length; j++) {
-      var $cell = $("<div>").addClass('cell');
-      $row.append($cell.addClass(map[i][j].material));
-    }
-  }
-};
-
-var renderPlayer = function(player, you) {
-  var move = true;
-  var $el = $("#"+player.id);
-  if(!$el.length) {
-    $el = $("<div>").attr('id', player.id).addClass('player').hide().appendTo('.world');
-    if(you) $el.addClass('you');
-    move = false;
-  }
-  var offset = $(".row:eq("+player.location.y+") .cell:eq("+player.location.x+")").position();
-  if(move) {
-    $el.animate(offset, 500/player.speed, "linear");
-  } else {
-    $el.css(offset).fadeIn();
-  }
-
-  // if(player.dir) {
-  //   var angle = "180deg";
-  //   if(player.dir === 'right') angle = '270deg';
-  //   else if(player.dir === 'up') angle = '0deg';
-  //   else if(player.dir === 'left') angle = '90deg';
-
-  //   $el.css('transform', 'rotate('+angle+')');
-  // }
-  if(you) {
-    if ($el.offset().top > 480) $('html,body').stop().animate({scrollTop: 640},500);
-    if ($el.offset().top < 480) $('html,body').stop().animate({scrollTop: 0},500);
-  }
-};
-
-var renderPlayers = function(players) {
-  for(var i = 0; i < players.length; i++) {
-    renderPlayer(players[i]);
-  }
-};
-
-var killPlayer = function(player, killer) {
-  var $el = $("#"+player.id).addClass('splode');
-  $el.fadeOut(500, function() { $(this).remove() });
-};
-
-var removePlayer = function(player) {
-  $("#"+player.id).remove();
-};
-
-var renderBullet = function(bullet) {
-  var move = true;
-  var $el = $("#"+bullet.id);
-  if(!$el.length) {
-    $el = $("<div>").attr('id', bullet.id).addClass('bullet').hide().appendTo('.world');
-    move = false;
-  }
-  var offset = $(".row:eq("+bullet.location.y+") .cell:eq("+bullet.location.x+")").position();
-  if(move) {
-    $el.animate(offset, 100, "linear");
-  } else {
-    $el.css(offset).show();
-  }
-};
-
-var removeBullet = function(bullet) {
-  $("#"+bullet.id).remove();
+function render(){
+  drawGrid();
+  drawPieces();
 }
 
-var toast = function(message) { $().toastmessage('showNoticeToast', message); };
+function drawGrid(){
+  var dist   = 20;
+  var w      = parseInt(world.grid[0].length) * dist;
+  var h      = parseInt(world.grid.length) * dist;
+  $('#canvas').attr({ width: w, height: h });
+
+
+  context.globalCompositeOperation = "source-over";
+  context.fillStyle = "#fafafa";
+  context.fillRect(0, 0, w, h);
+
+  for (var x = 0; x <= w; x += dist) {
+    context.moveTo(0.5 + x, 0);
+    context.lineTo(0.5 + x, h);
+  }
+
+  for (var x = 0; x <= h; x += dist) {
+    context.moveTo(0, 0.5 + x);
+    context.lineTo(w, 0.5 + x);
+  }
+
+  context.strokeStyle = "#cde";
+  context.stroke();
+}
+
+function drawPieces(){
+  drawPiece(world.player.piece);
+  // var others = world.others;
+  // if (others.length == 0) return;
+  // for (var i = 0; i < others.length; i++) {
+  //   drawPiece(others[i].piece);
+  // }
+}
+
+function eachSlot(piece, callback) {
+  for (x = 0 ; x < piece.positions[piece.rotation].length; x++) {
+    for (y = 0; y < piece.positions[piece.rotation][x].length; y++) {
+      if (piece.positions[piece.rotation][x][y] == 1) {
+        callback(piece.x + x, piece.y + y);
+      }
+    }
+  }
+}
+
+function drawPiece(piece){
+  eachSlot(piece, function(x, y){
+    context.fillStyle = piece.color;
+    context.fillRect(x * 20, y * 20, 20, 20);
+  });
+}

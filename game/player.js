@@ -49,16 +49,24 @@ module.exports = Player = function(io, socket, world, user, cb) {
 
   socket.on('player-fall', function(){
     if (self.piece) {
-      self.piece.fall();
-      world.grid.update(self.piece);
+      self.piece.fall(world.grid);
+      world.pieces.forEach(function(){
+        if (this.id === self.piece.id) {
+          this = self.piece;
+        }
+      });
       socket.emit('player-moved', { player: self });
     }
   });
 
   socket.on('player-rotate', function(data){
     if (self.piece) {
-      self.piece.rotate(data.direction);
-      world.grid.update(self.piece);
+      self.piece.rotate(data.direction, world.grid);
+      world.pieces.forEach(function(){
+        if (this.id === self.piece.id) {
+          this = self.piece;
+        }
+      });
       socket.emit('player-moved', { player: self });
     }
   });
