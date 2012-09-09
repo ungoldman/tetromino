@@ -4,9 +4,9 @@
  */
 
 exports.index = function(req, res){
-  res.render('index', { title: 'Express' });
+  res.render('index');
 };
 
-exports.test = function(req, res){
-  res.render('test', { title: 'Express' });
+exports.static = function(req, res){
+  res.render('static');
 };

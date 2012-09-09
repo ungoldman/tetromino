@@ -1,0 +1,9 @@
+nav {
+  margin: 10px auto;
+  text-align: center;
+}
+
+#canvas {
+  display: block;
+  margin: 50px auto 0;
+}

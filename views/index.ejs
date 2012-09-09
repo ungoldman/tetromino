@@ -3,26 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title>Canvas Tetris</title>
-  <style type="text/css">
-    * { margin: 0; padding: 0 }
-    body, html { background: #fff; color: #000; margin: 10px 0 0 }
-    #canvas { border: 1px solid #000 }
-  </style>
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-  <script type="text/javascript" src="js/keymaster.js"></script>
-  <script type="text/javascript" src="js/grid.js"></script>
-  <script type="text/javascript" src="js/piece.js"></script>
-  <script type="text/javascript" src="js/tetris.js"></script>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
-<div style="text-align: center">
-  <canvas id="canvas" width="220" height="360"></canvas>
-  <div id="score">Score: 0</div>
-  <div id="level">Level: 1</div>
-  <div id="gameOver"></div>
-  <div id="debug"></div>
-</div>
+<nav>
+  test |
+  <a href="/static">static</a>
+</nav>
+
+<canvas id="canvas"></canvas>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="/js/keymaster.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/client.js"></script>
 
 </body>
 </html>

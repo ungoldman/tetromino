@@ -59,7 +59,7 @@ module.exports = Player = function(io, socket, world, user, cb) {
         }
         self.piece.eachSlot(function(x,y){
           world.grid.cells[y][x].navigable = false;
-          world.grid.cells[y][x].color = '#777' || self.piece.color;
+          world.grid.cells[y][x].color = self.piece.color || '#777';
         });
         piece = self.getPiece();
         if (!piece) world.reset();

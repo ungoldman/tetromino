@@ -48,7 +48,7 @@ var game = function(io, user) {
           }
           player.piece.eachSlot(function(x,y){
             world.grid.cells[y][x].navigable = false;
-            world.grid.cells[y][x].color = '#777' || self.piece.color;
+            world.grid.cells[y][x].color = player.piece.color || '#777';
           });
           player.getPiece();
           io.sockets.emit('grid-updated', { grid: world.grid.cells });

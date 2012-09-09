@@ -40,7 +40,7 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-app.get('/test', routes.test);
+app.get('/static', routes.static);
 
 var server = app.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
