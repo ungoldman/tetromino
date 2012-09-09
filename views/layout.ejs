@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<title><%= name %></title>
+<%- css('style') %>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top navbar-inverse">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="/">Tetromino</a>
+      <ul class="nav">
+        <li<% if (path == '/1p') { %> class='active'<% } %>>
+          <a href="/1p">1P</a>
+        </li>
+
+        <li<% if (path == '/2p') { %> class='active'<% } %>>
+          <a href="/2p">2P</a>
+        </li>
+      </ul>
+
+      <ul class="nav pull-right">
+        <% if (auth === true) { %>
+          <li class="greeting">Hello, <strong><%= user %></strong></li>
+          <li>
+            <a href="/logout">Logout</a>
+          </li>
+        <% } else { %>
+          <li<% if (path == '/login') { %> class='active'<% } %>>
+            <a href="/login">Login</a>
+          </li>
+          <li<% if (path == '/register') { %> class='active'<% } %>>
+            <a href="/register">Register</a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<% if(messages && messages != '') { %>
+  <% String(messages).split(',').forEach(function(message) { %>
+    <div class="alert alert-error"><%= message %></div>
+  <% }) %>
+<% } %>
+
+<%- body %>
+
+</body>
+</html>

@@ -1,3 +1,6 @@
+//= require lib/jquery
+//= require_tree lib
+
 var socket  = io.connect(window.location.hostname)
   , canvas  = $('#canvas').get(0)
   , context = canvas.getContext('2d')
@@ -79,11 +82,6 @@ function drawGrid(){
 
   $('#canvas').attr({ width: width * distance + 1, height: height * distance + 1 });
 
-  // context.globalCompositeOperation = "source-over";
-  // context.fillStyle = "#fafafa";
-  // context.fillRect(0, 0, width * distance, height * distance);
-
-  // draw cells
   for (var x = 0; x < width; x++) {
     for (var y = 0; y < height; y++) {
       context.fillStyle = world.grid[y][x].color;
