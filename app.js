@@ -77,7 +77,7 @@ function findByUsername(username, fn){
 };
 
 function checkUser(user, cb){
-  db.view('user/byUsername', {key: user}, function(err, result) {
+  authDb.view('user/byUsername', {key: user}, function(err, result) {
     if(result.length > 0){ cb(false); } else { cb(true); };
   });
 };
