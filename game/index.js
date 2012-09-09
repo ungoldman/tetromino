@@ -50,6 +50,7 @@ var game = function(io, user) {
             world.grid.cells[y][x].navigable = false;
             world.grid.cells[y][x].color = player.piece.color || '#777';
           });
+          world.checkLines();
           player.getPiece();
           io.sockets.emit('grid-updated', { grid: world.grid.cells });
         }
@@ -58,7 +59,36 @@ var game = function(io, user) {
     });
   }
 
-  var gameLoop = setInterval( movePieces, 300 / ( speed / 2 ) );
+  world.gameLoop = setInterval( movePieces, 300 / ( speed / 2 ) );
+
+
+  world.checkLines = function(){
+    var linesToClear = [];
+
+    for (var y = world.grid.cells.length - 1; y >= 0; y--) {
+      var complete = true;
+      for (var x = 0; x < world.grid.cells[y].length; x++) {
+        if (world.grid.cells[y][x].navigable) {
+          complete = false;
+        }
+      }
+      if (complete) {
+        linesToClear.push(y);
+      }
+    }
+
+    if (linesToClear.length > 0) {
+      linesToClear.forEach(function(line){
+        world.clearLine(line);
+      });
+      io.sockets.emit('grid-updated', { grid: world.grid.cells });
+    }
+  }
+
+  world.clearLine = function(line) {
+    world.grid.cells.splice(line, 1);
+    world.grid.cells.unshift(new Grid(11,1).cells[0]);
+  }
 
   world.reset = function(){
     world.grid = new Grid(11, 18);

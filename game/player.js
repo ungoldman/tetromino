@@ -61,8 +61,8 @@ module.exports = Player = function(io, socket, world, user, cb) {
           world.grid.cells[y][x].navigable = false;
           world.grid.cells[y][x].color = self.piece.color || '#777';
         });
-        piece = self.getPiece();
-        if (!piece) world.reset();
+        world.checkLines();
+        self.getPiece();
         io.sockets.emit('grid-updated', { grid: world.grid.cells });
       }
       io.sockets.emit('player-moved', { player: self });
