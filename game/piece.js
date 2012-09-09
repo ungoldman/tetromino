@@ -202,7 +202,8 @@ Piece.prototype.rotate = function(direction, grid) {
 Piece.prototype.checkCollision = function(grid) {
   var result = false;
   this.eachSlot(function(x, y) {
-    if (x < 0 || x > grid.width -1 || y > grid.height -1 || grid.cells[x] && !grid.cells[x][y].navigable) {
+    if (x < 0 || x > grid.width -1 || y > grid.height -1 ||
+      grid.cells[x] && grid.cells[x][y] && !grid.cells[x][y].navigable) {
       result = true;
     }
   });
@@ -213,10 +214,10 @@ Piece.prototype.checkCollision = function(grid) {
 // representing the current position of the piece and pass a callback at
 // each interval
 Piece.prototype.eachSlot = function(callback) {
-  for (i = 0; i < this.positions[this.rotation].length; i++) {
-    for (j = 0; j < this.positions[this.rotation][i].length; j++) {
-      if (this.positions[this.rotation][i][j] == 1) {
-        callback(this.x + i, this.y + j);
+  for (x = 0; x < this.positions[this.rotation].length; x++) {
+    for (y = 0; y < this.positions[this.rotation][x].length; y++) {
+      if (this.positions[this.rotation][x][y] == 1) {
+        callback(this.x + x, this.y + y);
       }
     }
   }
