@@ -1,8 +1,8 @@
 var autoId = 0;
 
-module.exports = function() {
+module.exports = Cell = function() {
   return {
-    id: 't'+autoId++,
+    id: 'cell'+autoId++,
     navigable: true
   }
 }

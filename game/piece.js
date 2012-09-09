@@ -1,6 +1,6 @@
 var autoId = 0;
 
-var Piece = function(){
+module.exports = Piece = function(){
   var type = this.randomType();
   this.id = 'piece'+autoId++;
   this.y = 4;
@@ -8,12 +8,14 @@ var Piece = function(){
   this.rotation = 0;
   this.positions = pieces[type].positions;
   this.color = pieces[type].color;
+  this.type = pieces[type].name;
 };
 
 // this is the array that determines all shapes
 // positions represent the different rotations of each piece
 var pieces = [
   {
+    name: 'T-shape',
     positions: [[
       [0, 1, 0],
       [1, 1, 1],
@@ -33,12 +35,14 @@ var pieces = [
     ]], 
     color: '#f00'
   }, {
+    name: 'square',
     positions: [[
       [1, 1],
       [1, 1]
     ]],
     color: '#0f0'
   }, {
+    name: 'L-shape',
     positions: [[
       [0, 1, 1, 0],
       [0, 1, 0, 0],
@@ -62,6 +66,7 @@ var pieces = [
     ]],
     color: '#00f'
   }, {
+    name: 'reverse L-shape',
     positions: [[
       [1, 1, 0, 0],
       [0, 1, 0, 0],
@@ -85,6 +90,7 @@ var pieces = [
     ]],
     color: '#0ff'
   }, {
+    name: 'the long one',
     positions: [[
       [0, 1, 0, 0],
       [0, 1, 0, 0],
@@ -98,6 +104,7 @@ var pieces = [
     ]],
     color: '#ccc'
   }, {
+    name: 'S-shape',
     positions: [[
       [0, 1, 1, 0],
       [1, 1, 0, 0],
@@ -111,6 +118,7 @@ var pieces = [
     ]],
     color: '#f0f'
   }, {
+    name: 'Z-shape',
     positions: [[
       [1, 1, 0, 0],
       [0, 1, 1, 0],
@@ -151,14 +159,15 @@ Piece.prototype.fall = function() {
   }
 }
 // piece.move()
-Piece.prototype.move = function(direction) {
+Piece.prototype.move = function(direction, grid) {
+  console.log('moving piece');
   var increment = direction == ('left' || -1) ? -1 : 1;
   // Grab current position
   var oldX = this.x;
   // Add the increment of either +1 or -1 to the piece's current position
   this.x += increment;
   // If this causes a collision, give the piece it's old x position
-  if (this.checkCollision()) this.x = oldX;
+  if (this.checkCollision(grid)) this.x = oldX;
   // Returns the piece itself
   return this;
 }
@@ -184,15 +193,26 @@ Piece.prototype.rotate = function(direction) {
 
 // piece.checkCollision compares the current state of the piece to the grid
 // to make sure there is no overlap. It returns true if a collision is detected.
-Piece.prototype.checkCollision = function() {
+Piece.prototype.checkCollision = function(grid) {
   var result = false;
-  this.eachSlot(function(i, j) {
-    if (j < 0 || j > grid.width -1 || i > grid.height -1 || grid.array[i][j] != null) {
+  this.eachSlot(function(x, y) {
+    console.log('x = ' + x + ', y = ' + y);
+    console.log(grid.cells[x][y]);
+
+    if (x < 0 || x > grid.width -1 || y > grid.height -1 || grid.cells[x][y] != null) {
       result = true;
     }
   });
+  console.log(result);
   return result;
 }
+
+// [
+//   [1, 1, 0, 0],
+//   [0, 1, 1, 0],
+//   [0, 0, 0, 0],
+//   [0, 0, 0, 0]
+// ]
 
 // Piece.eachSlot allows you to cycle through the array
 // representing the current position of the piece and pass a callback at
@@ -201,10 +221,8 @@ Piece.prototype.eachSlot = function(callback) {
   for (i = 0 ; i < this.positions[this.rotation].length; i++) {
     for (j = 0; j < this.positions[this.rotation][i].length; j++) {
       if (this.positions[this.rotation][i][j] == 1) {
-        callback(this.y + i, this.x + j);
+        callback(this.x + i, this.y + j);
       }
     }
   }
 }
-
-module.exports = Piece;
