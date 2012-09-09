@@ -37,9 +37,7 @@ module.exports = Player = function(io, socket, world, user, cb) {
 
   socket.on('player-move', function(data){
     if (self.piece) {
-      console.log(self.piece);
       self.piece.move(data.direction, world.grid);
-      console.log(self.piece);
       world.pieces.forEach(function(){
         if (this.id === self.piece.id) {
           this = self.piece;

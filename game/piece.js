@@ -160,12 +160,12 @@ Piece.prototype.fall = function() {
 }
 // piece.move()
 Piece.prototype.move = function(direction, grid) {
-  console.log('moving piece');
   var increment = direction == ('left' || -1) ? -1 : 1;
   // Grab current position
   var oldX = this.x;
   // Add the increment of either +1 or -1 to the piece's current position
   this.x += increment;
+
   // If this causes a collision, give the piece it's old x position
   if (this.checkCollision(grid)) this.x = oldX;
   // Returns the piece itself
@@ -196,23 +196,12 @@ Piece.prototype.rotate = function(direction) {
 Piece.prototype.checkCollision = function(grid) {
   var result = false;
   this.eachSlot(function(x, y) {
-    console.log('x = ' + x + ', y = ' + y);
-    console.log(grid.cells[x][y]);
-
-    if (x < 0 || x > grid.width -1 || y > grid.height -1 || grid.cells[x][y] != null) {
+    if (x < 0 || x > grid.width -1 || y > grid.height -1 || grid.cells[x] && !grid.cells[x][y].navigable) {
       result = true;
     }
   });
-  console.log(result);
   return result;
 }
-
-// [
-//   [1, 1, 0, 0],
-//   [0, 1, 1, 0],
-//   [0, 0, 0, 0],
-//   [0, 0, 0, 0]
-// ]
 
 // Piece.eachSlot allows you to cycle through the array
 // representing the current position of the piece and pass a callback at
