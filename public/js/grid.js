@@ -15,7 +15,7 @@ Grid.prototype.render = function(context) {
   array = this.array;
   this.eachFilledSlot(function(i, j) {
     context.fillStyle = array[i][j];
-    context.fillRect (j * 20, i * 20, 20, 20);  
+    context.fillRect (j * 20, i * 20, 20, 20);
   });
 }
 

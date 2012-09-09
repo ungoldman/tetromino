@@ -1,7 +1,7 @@
-var socketio = require('socket.io');
-var Grid = require('./grid');
-var Player = require('./player');
-var Piece = require('./piece');
+var socketio = require('socket.io')
+  , Grid     = require('./grid')
+  , Player   = require('./player')
+  , Piece    = require('./piece');
 
 var game = function(io, user) {
 
@@ -10,7 +10,6 @@ var game = function(io, user) {
   var world = {};
   world.grid = new Grid(11, 18);
   world.players = [];
-  world.pieces = [];
 
   var addPlayer = function(io, socket) {
     world.players.push(new Player(io, socket, world, user));
@@ -33,14 +32,40 @@ var game = function(io, user) {
   });
 
   var movePieces = function() {
-    if(!world.pieces.length) return;
-
-    world.pieces.forEach(function(piece) {
-      piece.move(io.sockets, {world: world, speed: speed});
+    world.players.forEach(function(player){
+      if (player.piece) {
+        var oldId = player.piece.id;
+        var piece = player.piece.fall(world.grid);
+        if (!piece) {
+          if (player.piece.checkCollision(world.grid) && player.piece.y == 0) {
+            world.reset();
+            io.sockets.emit('world-reset', {
+              grid: world.grid.cells,
+              player: player,
+              others: world.players
+            });
+            return;
+          }
+          player.piece.eachSlot(function(x,y){
+            world.grid.cells[y][x].navigable = false;
+            world.grid.cells[y][x].color = '#777' || self.piece.color;
+          });
+          player.getPiece();
+          io.sockets.emit('grid-updated', { grid: world.grid.cells });
+        }
+        io.sockets.emit('player-moved', { player: player });
+      }
     });
   }
 
-  setInterval(movePieces, 50);
+  var gameLoop = setInterval( movePieces, 300 / ( speed / 2 ) );
+
+  world.reset = function(){
+    world.grid = new Grid(11, 18);
+    world.players.forEach(function(player){
+      player.getPiece();
+    });
+  }
 
 };
 

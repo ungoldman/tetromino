@@ -1,6 +1,6 @@
 var Cell = require('./cell');
 
-module.exports = function(width, height) {
+module.exports = Grid = function(width, height) {
   var rows = [];
 
   for(var i = 0; i < height; i++) {
@@ -23,4 +23,5 @@ module.exports = function(width, height) {
     return rows[y][x].navigable;
   };
 
+  return this;
 };

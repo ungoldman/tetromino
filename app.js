@@ -1,15 +1,24 @@
-
-/**
- * Module dependencies.
- */
+/*******************************************************************************
+*                                                                              *
+*      __           __                                                         *
+*     /\ \__       /\ \__                           __                         *
+*     \ \ ,_\    __\ \ ,_\  _ __   ___     ___ ___ /\_\    ___     ___         *
+*      \ \ \/  /'__`\ \ \/ /\`'__\/ __`\ /' __` __`\/\ \ /' _ `\  / __`\       *
+*       \ \ \_/\  __/\ \ \_\ \ \//\ \L\ \/\ \/\ \/\ \ \ \/\ \/\ \/\ \L\ \      *
+*        \ \__\ \____\\ \__\\ \_\\ \____/\ \_\ \_\ \_\ \_\ \_\ \_\ \____/      *
+*         \/__/\/____/ \/__/ \/_/ \/___/  \/_/\/_/\/_/\/_/\/_/\/_/\/___/       *
+*                                                                              *
+*     Created by:                                                              *
+*                                                                              *
+*     Nate Goldman                                                             *
+*     Sean Harvey                                                              *
+*     Chan Park                                                                *
+*                                                                              *
+*******************************************************************************/
 
 var express = require('express')
-  , routes = require('./routes')
-  , http = require('http')
-  , path = require('path')
-  , socket
-
-var app = express();
+  , routes  = require('./routes')
+  , app     = express();
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -23,7 +32,7 @@ app.configure(function(){
   app.use(express.session());
   app.use(app.router);
   app.use(require('less-middleware')({ src: __dirname + '/public' }));
-  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(__dirname + '/public'));
 });
 
 app.configure('development', function(){
@@ -33,7 +42,7 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/test', routes.test);
 
-var server = http.createServer(app).listen(app.get('port'), function(){
+var server = app.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 

@@ -1,18 +1,19 @@
-var Piece = require('./piece');
-var autoId = 0;
+var Piece  = require('./piece')
+  , autoId = 0;
 
 module.exports = Player = function(io, socket, world, user, cb) {
   var self = this;
 
-  this.id = 'player'+autoId++;
-  this.score = 0;
-  this.piece = null;
+  this.id       = 'player' + autoId++;
+  this.score    = 0;
+  this.piece    = null;
   this.username = user.name;
 
   socket.playerId = this.id;
 
   this.getPiece = function() {
     self.piece = new Piece();
+    return self.piece;
   };
 
   this.destroy = function() {
@@ -38,36 +39,47 @@ module.exports = Player = function(io, socket, world, user, cb) {
   socket.on('player-move', function(data){
     if (self.piece) {
       self.piece.move(data.direction, world.grid);
-      world.pieces.forEach(function(){
-        if (this.id === self.piece.id) {
-          this = self.piece;
-        }
-      });
-      socket.emit('player-moved', { player: self });
+      io.sockets.emit('player-moved', { player: self });
     }
   });
 
   socket.on('player-fall', function(){
     if (self.piece) {
-      self.piece.fall(world.grid);
-      world.pieces.forEach(function(){
-        if (this.id === self.piece.id) {
-          this = self.piece;
+      var oldId = self.piece.id;
+      var piece = self.piece.fall(world.grid);
+      if (!piece) {
+        if (self.piece.checkCollision(world.grid) && self.piece.y == 0) {
+          world.reset();
+          io.sockets.emit('world-reset', {
+            grid: world.grid.cells,
+            player: self,
+            others: world.players
+          });
+          return;
         }
-      });
-      socket.emit('player-moved', { player: self });
+        self.piece.eachSlot(function(x,y){
+          console.log(x,y);
+          world.grid.cells[y][x].navigable = false;
+          world.grid.cells[y][x].color = '#777' || self.piece.color;
+          console.log(world.grid.cells[y][x]);
+        });
+        piece = self.getPiece();
+        if (!piece) world.reset();
+        io.sockets.emit('grid-updated', { grid: world.grid.cells });
+      }
+      io.sockets.emit('player-moved', { player: self });
     }
   });
 
   socket.on('player-rotate', function(data){
     if (self.piece) {
       self.piece.rotate(data.direction, world.grid);
-      world.pieces.forEach(function(){
-        if (this.id === self.piece.id) {
-          this = self.piece;
-        }
-      });
-      socket.emit('player-moved', { player: self });
+      // world.pieces.forEach(function(){
+      //   if (this.id === self.piece.id) {
+      //     this = self.piece;
+      //   }
+      // });
+      io.sockets.emit('player-moved', { player: self });
     }
   });
 
