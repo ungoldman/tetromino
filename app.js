@@ -236,7 +236,7 @@ app.get('/logout', function(req, res){
 });
 
 /*
- * http & socket server initializers
+ * game routes
 ****************************************************************/
 
 app.get('/1p', ensureAuthenticated, function(req, res){
