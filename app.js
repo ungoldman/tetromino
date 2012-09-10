@@ -16,12 +16,16 @@
 *                                                                              *
 *******************************************************************************/
 
+/*
+ * dependencies
+*******************************************************************************/
+
 /* server */
 var express = require('express')
   , routes  = require('./routes')
+  , app     = express()
 
 /* authentication */
-  , cradle        = require('cradle')
   , crypto        = require('crypto')
   , passport      = require('passport')
   , LocalStrategy = require('passport-local').Strategy
@@ -32,13 +36,14 @@ var express = require('express')
   , flash    = require('connect-flash')
 
 /* database connections */
-  , couch  = process.env.NODE_ENV == 'production' ? process.env.TETROMINO_AUTH : '127.0.0.1:5984'
-  , conn   = new cradle.Connection(couch)
-  , authDb = conn.database('auth');
+  , cradle  = require('cradle')
+  , conn    = new cradle.Connection(process.env.COUCH_DB || '127.0.0.1:5984')
+  , authDb  = conn.database('auth');
 
-var app = express();
+/*
+ * server configuration
+*******************************************************************************/
 
-/* configuration */
 app
   .set('port', process.env.PORT || 3000)
   .set('views', __dirname + '/views')
@@ -65,7 +70,9 @@ app
   })
   .use(app.router);
 
-/* auth configuration */
+/*
+ * auth configuration
+*******************************************************************************/
 
 // Looks for user in the DB
 function findByUsername(username, fn){
@@ -116,7 +123,8 @@ passport.use(new LocalStrategy(
         });
       };
 
-      // If the give passowrd doesn't match the username nofity user their password was incorrect
+      // If the give password doesn't match the username notify user their
+      // password was incorrect
       getHash(password, function(err, key){
         if(err || key !== user.password) {
           return done(null, false, {
@@ -131,7 +139,7 @@ passport.use(new LocalStrategy(
 
 /*
  * basic routes
-****************************************************************/
+*******************************************************************************/
 
 app.get('/', function(req, res){
   if (req.isAuthenticated()) {
@@ -153,7 +161,7 @@ app.get('/', function(req, res){
 
 /*
  * auth routes
-****************************************************************/
+*******************************************************************************/
 
 app.get('/login', function(req, res){
   res.render('login', {
@@ -237,7 +245,7 @@ app.get('/logout', function(req, res){
 
 /*
  * game routes
-****************************************************************/
+*******************************************************************************/
 
 app.get('/1p', ensureAuthenticated, function(req, res){
   res.render('1p', {
@@ -261,7 +269,7 @@ app.get('/2p', ensureAuthenticated, function(req, res){
 
 /*
  * http & socket server initializers
-****************************************************************/
+*******************************************************************************/
 
 /* listen up son */
 var server = app.listen(app.get('port'), function(){
