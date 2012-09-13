@@ -89,6 +89,12 @@ function checkUser(user, cb){
   });
 };
 
+function addScore(user, score, cb){
+  authDb.view('user/byUsername', {key: user}, function(err, result) {
+    if(result.length > 0){ cb(result); } else { cb(null); };
+  });
+};
+
 // Password hash
 function getHash(passwd, cb){
   crypto.pbkdf2(passwd, "deSalt", 2048, 40, cb);
@@ -224,7 +230,8 @@ app.post('/register', function(req, res){
           authDb.save({
             username: user,
             password: hash,
-            email: email
+            email: email,
+            highscore : null
           }, function(err, result) {
             if(err) throw err;
             res.redirect('/login');
@@ -236,6 +243,62 @@ app.post('/register', function(req, res){
   } else {
     res.redirect('/register');
   };
+});
+
+app.post('/score', function(req, res){
+  var username = req.user.username;
+  var score = req.body.score;
+  
+  console.log('User: ' + username + ' got a highscore of: ' + score);
+  
+  // Grab users data from db
+  addScore(username, score, function(result){
+    console.log('User score is ' + score);
+    // Init an array for the highscore
+    var highScores = [];
+    // Set highScores empty array equal to highscores from the db
+    var highScores = result[0].value.highscores;
+    console.log(highScores);
+    // Set our newHighScore check var to false initially
+    var newHighScore = false;
+    // Make sure a null value wasn't set in the db or has no value set
+    if(highScores != null && highScores.length > 0){
+      // Loop through each index of the highScores array and compare 
+      // each index to the score captured from the latest game
+      console.log(highScores.length);
+      for(i = 0; i < highScores.length; i++){
+        // If the current index is less than the score from the most 
+        // recent game set that index equal to the new score and break
+        // from the loop because we found a score which the user beat,
+        // we then set newHighScore to true
+        if(parseInt(highScores[i]) < parseInt(score)){
+          console.log(highScores[i]);
+          highScores[i] = score;
+          console.log(highScores[i]);
+          newHighScore = true;
+          break;
+        }
+      }
+
+      // If we have a new highScore we need to save it to the db 
+      if(newHighScore == true){
+        console.log(newHighScore);
+        console.log('After for Loop score ' + highScores);
+        authDb.merge(username, { highscores : highScores }, function(err, status) {
+          console.log(err, status, username);
+        });
+      }
+    // If our user has no high score record then we'll just save thier highscore
+    } else {
+        console.log('Score of ' + score + ' for '+ username +' wasnt a high score');
+        authDb.merge(username, { highscores : score }, function(err, status) {
+          console.log(status);
+        });
+    };
+    
+  });
+  
+  res.redirect('/');
 });
 
 app.get('/logout', function(req, res){
