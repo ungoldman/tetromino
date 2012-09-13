@@ -1,10 +1,8 @@
-//= require lib/jquery
-//= require_tree lib
-
 var socket  = io.connect(window.location.hostname)
   , canvas  = $('#canvas').get(0)
   , context = canvas.getContext('2d')
-  , world;
+  , world
+  , blockSize = 30;
 
 socket.on('game-enter', function(data){
   world = data;
@@ -76,7 +74,7 @@ function render(){
 }
 
 function drawGrid(){
-  var distance = 20;
+  var distance = blockSize;
   var width    = parseInt(world.grid[0].length);
   var height   = parseInt(world.grid.length);
 
@@ -85,7 +83,7 @@ function drawGrid(){
   for (var x = 0; x < width; x++) {
     for (var y = 0; y < height; y++) {
       context.fillStyle = world.grid[y][x].color;
-      context.fillRect(x * distance, y * distance, 20, 20);
+      context.fillRect(x * distance, y * distance, blockSize, blockSize);
     }
   }
 }
@@ -100,11 +98,11 @@ function drawPieces(){
 }
 
 function drawLines(){
-  var distance = 20;
+  var distance = blockSize;
   var width    = parseInt(world.grid[0].length) * distance;
   var height   = parseInt(world.grid.length) * distance;
 
-  context.strokeStyle = "#cde";
+  context.strokeStyle = "#1B2841";
 
   // draw lines
   for (var x = 0; x <= width + 1; x += distance) {
@@ -133,6 +131,6 @@ function eachSlot(piece, callback) {
 function drawPiece(piece){
   eachSlot(piece, function(x, y){
     context.fillStyle = piece.color;
-    context.fillRect(x * 20, y * 20, 20, 20);
+    context.fillRect(x * 30, y * 30, 30, 30);
   });
 }

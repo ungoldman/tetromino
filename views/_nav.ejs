@@ -1,0 +1,26 @@
+<div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+
+      <a class="brand" href="/">Tetromino</a>
+
+      <ul class="nav pull-right">
+        <% if (authenticated) { %>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <strong><%= currentUser %></strong>
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="/logout">Logout</a></li>
+            </ul>
+          </li>
+        <% } else { %>
+          <li><a href="#login-modal" data-toggle="modal">Login</a></li>
+          <li><a href="#register-modal" data-toggle="modal">Register</a></li>
+        <% } %>
+      </ul>
+
+    </div>
+  </div>
+</div>

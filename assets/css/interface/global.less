@@ -1,0 +1,38 @@
+html, body {
+  font-family: 'MenschRegular', sans-serif;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+body {
+  background: #ffcc33 url(/img/interface/bg.png) 0 0 repeat;
+  /*font-family: 'Andale Mono', monospace;*/
+}
+
+/* bootstrap override */
+.container,
+.navbar-static-top .container,
+.navbar-fixed-top .container,
+.navbar-fixed-bottom .container {
+  width: 961px;
+}
+
+.main.container {
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+/* clearfix: http://css-tricks.com/snippets/css/clear-fix/ */
+.cf:before,
+.cf:after {
+    content: "";
+    display: table;
+}
+.cf:after { clear: both }
+.cf { zoom: 1 } /* For IE 6/7 (trigger hasLayout) */
+
+#canvas {
+  margin: 0 auto;
+  display: block;
+}

@@ -54,7 +54,6 @@ app
   .use(express.cookieParser('roar'))
   .use(express.session({secret : 'secrets'}))
   .use(flash())
-  .use(express.staticCache())
   .use(express.static(__dirname + '/public'))
   .use(partials())
   .use(assets())
@@ -81,25 +80,18 @@ function findByUsername(username, fn){
     if(err || !res.length) return fn(null, null);
     fn(null, res[0].value);
   });
-};
+}
 
 function checkUser(user, cb){
   authDb.view('user/byUsername', {key: user}, function(err, result) {
     if(result.length > 0){ cb(false); } else { cb(true); };
   });
-};
+}
 
 // Password hash
 function getHash(passwd, cb){
   crypto.pbkdf2(passwd, "deSalt", 2048, 40, cb);
-};
-
-// Simple check to see if user is loggedin, if not point them to /login
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  req.flash('error','You must be logged in to see that page');
-  res.redirect('/login');
-};
+}
 
 passport.serializeUser(function(user, done) {
   done(null, user.username);
@@ -138,44 +130,51 @@ passport.use(new LocalStrategy(
 ));
 
 /*
+ * pre-verb actions
+*******************************************************************************/
+
+// loads some useful local variables
+function loadAuthentication(req, res, next) {
+  res.locals({
+    name: 'Tetromino',
+    currentPath: req.url,
+    currentUser: req.user ? req.user.username : null,
+    authenticated: req.isAuthenticated()
+  })
+  next();
+}
+
+// Simple check to see if user is loggedin, if not point them to /login
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) return next();
+
+  req.flash('error','You must be logged in to see that page');
+  res.redirect('/');
+}
+
+/*
+ * global logic
+*******************************************************************************/
+
+app.all('*', loadAuthentication);
+
+/*
  * basic routes
 *******************************************************************************/
 
 app.get('/', function(req, res){
-  if (req.isAuthenticated()) {
-    res.render('dashboard', {
-      path: req.url,
-      user: req.user ? req.user.username : null,
-      auth: req.isAuthenticated(),
-      messages: null
-    });
-  } else {
-    res.render('index', {
-      path: req.url,
-      user: req.user ? req.user.username : null,
-      auth: req.isAuthenticated(),
-      messages: null
-    });
-  }
+  res.render('index', {
+    messages: req.flash('error')
+  });
 });
 
 /*
  * auth routes
 *******************************************************************************/
 
-app.get('/login', function(req, res){
-  res.render('login', {
-    path: req.url,
-    user: req.user,
-    auth: req.isAuthenticated(),
-    messages: req.flash('error')
-  });
-});
-
-// Login Biz
 app.post('/login',
   passport.authenticate('local', {
-    failureRedirect: '/login',
+    failureRedirect: '/',
     failureFlash: true
   }),
   function(req, res) {
@@ -183,21 +182,11 @@ app.post('/login',
   }
 );
 
-app.get('/register', function(req, res){
-  res.render('register', {
-    path: req.url,
-    auth: req.isAuthenticated(),
-    user: req.user ? req.user.username : null,
-    messages: req.flash('error')
-  });
-});
-
-// Registration
 app.post('/register', function(req, res){
-  var user = req.body.username;
-  var email = req.body.email;
-  var pass = req.body.password;
-  var errors = 0;
+  var user   = req.body.username
+    , email  = req.body.email
+    , pass   = req.body.password
+    , errors = 0;
 
   if(!user){
     req.flash('error', 'Please enter a username');
@@ -214,33 +203,37 @@ app.post('/register', function(req, res){
     errors++;
   }
 
-  if(user) {
+  if(!!user && !!email && !!pass) {
     checkUser(user, function(auth){
-      if(auth === false){
+      if (auth === false) {
         req.flash('error', 'Username "'+ user +'" already taken.\n');
         errors++;
-      } else if(auth === true && !errors) {
+      } else if (auth === true && !errors) {
         getHash(pass, function(err, hash){
           authDb.save({
             username: user,
             password: hash,
             email: email
-          }, function(err, result) {
+          },
+          function(err, result) {
             if(err) throw err;
-            res.redirect('/login');
+            req.flash('error', 'Registration successful! You still gotta login though :P');
+            res.redirect('/');
           });
         });
       };
-      if(errors > 0){ res.redirect('/register'); }
+      if (errors > 0) {
+        res.redirect('/');
+      }
     });
   } else {
-    res.redirect('/register');
-  };
+    res.redirect('/');
+  }
 });
 
 app.get('/logout', function(req, res){
   req.logout();
-  res.redirect('/login');
+  res.redirect('/');
 });
 
 /*
@@ -248,22 +241,16 @@ app.get('/logout', function(req, res){
 *******************************************************************************/
 
 app.get('/1p', ensureAuthenticated, function(req, res){
-  res.render('1p', {
+  res.render('canvas', {
     name: 'Tetromino | 1P',
-    path: req.url,
-    user: req.user ? req.user.username : null,
-    auth: req.isAuthenticated(),
-    messages: null
+    javascripts: ['client']
   });
 });
 
 app.get('/2p', ensureAuthenticated, function(req, res){
-  res.render('2p', {
+  res.render('canvas', {
     name: 'Tetromino | 2P',
-    path: req.url,
-    user: req.user ? req.user.username : null,
-    auth: req.isAuthenticated(),
-    messages: null
+    javascripts: ['client']
   });
 });
 
@@ -275,10 +262,11 @@ app.get('/2p', ensureAuthenticated, function(req, res){
 var server = app.listen(app.get('port'), function(){
   var hello = [
     'Tetromino server',
-    '\nport: ' + app.get('port'),
-    '\nenv:  ' + app.settings.env
+    '\nport : ' + app.get('port'),
+    '\nenv  : ' + app.settings.env,
+    '\nlistening...'
   ];
-  console.log(hello[0], hello[1], hello[2]);
+  console.log(hello[0], hello[1], hello[2], hello[3]);
 });
 
 /* fake user */

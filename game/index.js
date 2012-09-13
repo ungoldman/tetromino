@@ -48,7 +48,7 @@ var game = function(io, user) {
           }
           player.piece.eachSlot(function(x,y){
             world.grid.cells[y][x].navigable = false;
-            world.grid.cells[y][x].color = player.piece.color || '#777';
+            world.grid.cells[y][x].color = '#FFCD34' || player.piece.color;
           });
           world.checkLines();
           player.getPiece();
