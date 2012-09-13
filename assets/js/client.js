@@ -16,19 +16,6 @@ socket.on('game-enter', function(data){
     addPlayerToBoard(world.others[i])
   }
 
-  function addPlayerToBoard(player) {
-    var $el = $('.leaderboard.stats'),
-      html;
-
-    if (player.username == world.player.username) {
-      html = 'you: <span class="score">' + player.score + '</span>';
-    } else {
-      html = player.username + ': <span class="score">' + player.score + '</span>';
-    }
-
-    $('<p class="' + player.username + '"/>').append(html).appendTo($el);
-  }
-
   socket.on('world-reset', function(data){
     world.grid = data.grid;
     world.lines = data.lines;
@@ -73,6 +60,7 @@ socket.on('game-enter', function(data){
 
 socket.on('player-joined', function(data) {
   world.others.push(data.player);
+  addPlayerToBoard(data.player);
 });
 
 socket.on('player-moved', function(data) {
@@ -182,9 +170,25 @@ function drawPiece(piece, you){
 }
 
 function removePlayer(player) {
+  $('.' + player.username).remove();
   for (var i = 0; i < world.others.length; i++) {
     if (player.id == world.others[i].id) {
       world.others.splice(i, 1);
     }
   }
+}
+
+function addPlayerToBoard(player) {
+  var $el = $('.leaderboard.stats'),
+    html;
+
+  if ($('.' + player.username).length > 0) return;
+
+  if (player.username == world.player.username) {
+    html = 'you: <span class="score">' + player.score + '</span>';
+  } else {
+    html = player.username + ': <span class="score">' + player.score + '</span>';
+  }
+
+  $('<p class="' + player.username + '"/>').append(html).appendTo($el);
 }
