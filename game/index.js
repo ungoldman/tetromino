@@ -16,23 +16,18 @@ var game = function(io, user) {
 
   var addPlayer = function(io, socket) {
     world.players.push(new Player(io, socket, world, user));
-  };
+  }
 
   var removePlayer = function(socket) {
     for(var i = 0; i < world.players.length; i++) {
       if(world.players[i].id === socket.playerId) {
+        console.log('removing player', socket.playerId);
         world.players[i].destroy();
         world.players.splice(i, 1);
+        world.players.length;
       }
     }
-  };
-
-  io.on('connection', function(socket) {
-    addPlayer(io, socket);
-    socket.on('disconnect', function() {
-      removePlayer(socket);
-    });
-  });
+  }
 
   var movePieces = function() {
     world.players.forEach(function(player){
@@ -56,9 +51,6 @@ var game = function(io, user) {
       }
     });
   }
-
-  world.gameLoop = setInterval( movePieces, 300 / ( speed / 2 ) );
-
 
   world.checkLines = function(){
     var linesToClear = [];
@@ -103,6 +95,15 @@ var game = function(io, user) {
       lines: world.lines
     });
   }
+
+  world.gameLoop = setInterval( movePieces, 300 / ( speed / 2 ) );
+
+  io.on('connection', function(socket) {
+    addPlayer(io, socket);
+    socket.on('disconnect', function() {
+      removePlayer(socket);
+    });
+  });
 
 };
 

@@ -1,20 +1,28 @@
-.game {}
+.game {
+  position: relative;
+}
 
 #canvas {
   margin: 0 auto;
   display: block;
 }
 
-.stats {}
+.stats {
+  position: absolute;
+  top: 0;
+  width: 180px;
+}
 
 .stats h2 {}
 
 .enemy.stats {
-  float: left;
+  left: 0;
+  padding-right: 30px;
 }
 
 .player.stats {
-  float: right;
+  right: 0;
+  padding-left: 30px;
 }
 
 .player.stats .lines {}

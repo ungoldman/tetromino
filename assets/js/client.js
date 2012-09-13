@@ -46,15 +46,22 @@ socket.on('game-enter', function(data){
   render();
 });
 
+socket.on('player-joined', function(data) {
+  world.others.push(data.player);
+});
+
 socket.on('player-moved', function(data) {
-  world.player.piece = data.player.piece;
-  // var you = false;
-  // if(data.player.id === world.player.id) {
-  //   world.player.location = data.player.location;
-  //   world.player.dir = data.player.dir;
-  //   you = true;
-  // }
-  // renderPlayer(data.player, you);
+  var you = false;
+  if(data.player.id === world.player.id) {
+    world.player.piece = data.player.piece;
+    you = true;
+  } else {
+    for (var i = 0; i < world.others.length; i++) {
+      if (data.player.id == world.others[i].id) {
+        world.others[i].piece = data.player.piece;
+      }
+    }
+  }
   render();
 });
 
@@ -68,8 +75,7 @@ socket.on('line-cleared', function(data) {
 });
 
 socket.on('player-quit', function(data){
-  //removePlayer(data.player);
-  console.log('player quit', data);
+  removePlayer(data.player);
   render();
 });
 
@@ -96,11 +102,13 @@ function drawGrid(){
 
 function drawPieces(){
   drawPiece(world.player.piece);
-  // var others = world.others;
-  // if (others.length == 0) return;
-  // for (var i = 0; i < others.length; i++) {
-  //   drawPiece(others[i].piece);
-  // }
+  var others = world.others;
+  if (others.length == 0) return;
+  for (var i = 0; i < others.length; i++) {
+    if (others[i].id == world.player.id) continue;
+    console.log('drawing', others[i].id);
+    drawPiece(others[i].piece);
+  }
 }
 
 function drawLines(){
@@ -139,4 +147,13 @@ function drawPiece(piece){
     context.fillStyle = piece.color;
     context.fillRect(x * 30, y * 30, 30, 30);
   });
+}
+
+function removePlayer(player) {
+  for (var i = 0; i < world.others.length; i++) {
+    if (data.player.id == world.others[i].id) {
+      console.log('deleting', world.others[i].id);
+      delete world.others[i];
+    }
+  }
 }

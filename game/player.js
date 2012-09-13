@@ -17,6 +17,7 @@ module.exports = Player = function(io, socket, world, user, cb) {
   };
 
   this.destroy = function() {
+    console.log('destroying', self.id);
     io.sockets.emit('player-quit', { player: self });
   };
 
@@ -34,7 +35,7 @@ module.exports = Player = function(io, socket, world, user, cb) {
     lines: world.lines
   });
 
-  // io.sockets.emit('player-joined', { player: player });
+  io.sockets.emit('player-joined', { player: self });
   // io.sockets.emit('player-moved',  { player: player });
 
   socket.on('player-move', function(data){
