@@ -247,7 +247,7 @@ app.get('/1p', ensureAuthenticated, function(req, res){
   });
 });
 
-app.get('/2p', ensureAuthenticated, function(req, res){
+app.get('/2p', function(req, res){
   res.render('canvas', {
     name: 'Tetromino | 2P',
     javascripts: ['client']

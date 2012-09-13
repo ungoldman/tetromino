@@ -30,7 +30,8 @@ module.exports = Player = function(io, socket, world, user, cb) {
   socket.emit('game-enter', {
     grid: world.grid.cells,
     player: self,
-    others: world.players
+    others: world.players,
+    lines: world.lines
   });
 
   // io.sockets.emit('player-joined', { player: player });
@@ -50,11 +51,6 @@ module.exports = Player = function(io, socket, world, user, cb) {
       if (!piece) {
         if (self.piece.checkCollision(world.grid) && self.piece.y == 0) {
           world.reset();
-          io.sockets.emit('world-reset', {
-            grid: world.grid.cells,
-            player: self,
-            others: world.players
-          });
           return;
         }
         self.piece.eachSlot(function(x,y){
@@ -63,7 +59,6 @@ module.exports = Player = function(io, socket, world, user, cb) {
         });
         world.checkLines();
         self.getPiece();
-        io.sockets.emit('grid-updated', { grid: world.grid.cells });
       }
       io.sockets.emit('player-moved', { player: self });
     }

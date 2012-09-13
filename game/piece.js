@@ -85,9 +85,10 @@ Piece.prototype.rotate = function(direction, grid) {
 // to make sure there is no overlap. It returns true if a collision is detected.
 Piece.prototype.checkCollision = function(grid) {
   var result = false;
+
   this.eachSlot(function(x, y) {
     if (x < 0 || x > grid.width -1 || y > grid.height -1 ||
-      grid.cells[x] && grid.cells[y][x] && !grid.cells[y][x].navigable) {
+      grid.cells[y] && grid.cells[y][x] && !grid.cells[y][x].navigable) {
       result = true;
     }
   });
@@ -127,7 +128,7 @@ var pieces = [
       [0, 1, 0],
       [1, 1, 0],
       [0, 1, 0]
-    ]], 
+    ]],
     color: '#f00'
   }, {
     name: 'square',

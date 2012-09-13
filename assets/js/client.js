@@ -6,9 +6,11 @@ var socket  = io.connect(window.location.hostname)
 
 socket.on('game-enter', function(data){
   world = data;
+  $('#lines').text(world.lines);
 
   socket.on('world-reset', function(data){
-    world = data;
+    world.lines = data.lines;
+    world.grid = data.grid;
   });
 
   var directions = ['left','right']
@@ -59,6 +61,10 @@ socket.on('player-moved', function(data) {
 socket.on('grid-updated', function(data) {
   world.grid = data.grid;
   render();
+});
+
+socket.on('line-cleared', function(data) {
+  $('#lines').text(data.lines);
 });
 
 socket.on('player-quit', function(data){

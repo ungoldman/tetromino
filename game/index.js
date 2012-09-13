@@ -6,10 +6,13 @@ var socketio = require('socket.io')
 var game = function(io, user) {
 
   var speed = 1;
+  var height = 18;
+  var width = 18;
 
   var world = {};
-  world.grid = new Grid(11, 18);
+  world.grid = new Grid(width, height);
   world.players = [];
+  world.lines = 0;
 
   var addPlayer = function(io, socket) {
     world.players.push(new Player(io, socket, world, user));
@@ -39,11 +42,6 @@ var game = function(io, user) {
         if (!piece) {
           if (player.piece.checkCollision(world.grid) && player.piece.y == 0) {
             world.reset();
-            io.sockets.emit('world-reset', {
-              grid: world.grid.cells,
-              player: player,
-              others: world.players
-            });
             return;
           }
           player.piece.eachSlot(function(x,y){
@@ -76,24 +74,33 @@ var game = function(io, user) {
         linesToClear.push(y);
       }
     }
+    if (linesToClear.length == 4) io.sockets.emit('tetris');
+
 
     if (linesToClear.length > 0) {
       linesToClear.reverse().forEach(function(line){
         clearLine(line);
       });
-      io.sockets.emit('grid-updated', { grid: world.grid.cells });
     }
+    io.sockets.emit('grid-updated', { grid: world.grid.cells });
   }
 
   function clearLine(line) {
     world.grid.cells.splice(line, 1);
-    world.grid.cells.unshift(new Grid(11,1).cells[0]);
+    world.grid.cells.unshift(new Grid(width, height).cells[0]);
+    world.lines++;
+    io.sockets.emit('line-cleared', { lines: world.lines });
   }
 
   world.reset = function(){
-    world.grid = new Grid(11, 18);
+    world.lines = 0;
+    world.grid = new Grid(width, height);
     world.players.forEach(function(player){
       player.getPiece();
+    });
+    io.sockets.emit('world-reset', {
+      grid: world.grid.cells,
+      lines: world.lines
     });
   }
 
