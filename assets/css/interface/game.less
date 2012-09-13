@@ -1,4 +1,7 @@
 .game {
+  background: rgba(255, 255, 255, .3);
+  border: 1px solid rgba(0, 0, 0, .1);
+  border-top: none;
   position: relative;
 }
 
@@ -8,21 +11,36 @@
 }
 
 .stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   position: absolute;
   top: 0;
-  width: 180px;
+  width: 209px;
 }
 
-.stats h2 {}
+.stats li {}
 
-.enemy.stats {
+.stats h2 {
+  font-size: 20px;
+  font-weight: bold;
+  background: #776;
+  color: #ffe;
+  padding: 0 0 0 30px;
+}
+
+.stats p {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 0 20px 30px;
+}
+
+.leaderboard.stats {
   left: 0;
-  padding-right: 30px;
 }
 
 .player.stats {
   right: 0;
-  padding-left: 30px;
 }
 
 .player.stats .lines {}

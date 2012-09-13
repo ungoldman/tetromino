@@ -1,23 +1,22 @@
 var Piece  = require('./piece')
   , autoId = 0;
 
-module.exports = Player = function(io, socket, world, user, cb) {
+module.exports = Player = function(io, socket, world, user) {
   var self = this;
 
   this.id       = 'player' + autoId++;
   this.score    = 0;
   this.piece    = null;
-  this.username = user.name;
+  this.username = user ? user.name : self.id;
 
   socket.playerId = this.id;
 
-  this.getPiece = function() {
-    self.piece = new Piece();
+  this.getPiece = function(start) {
+    self.piece = new Piece(start);
     return self.piece;
   };
 
   this.destroy = function() {
-    console.log('destroying', self.id);
     io.sockets.emit('player-quit', { player: self });
   };
 
@@ -26,7 +25,9 @@ module.exports = Player = function(io, socket, world, user, cb) {
     // destroy player because game is over, not because they quit
   }
 
-  this.getPiece();
+  this.getPiece(parseInt(world.width / 2));
+
+  console.log(self.username, 'joining game');
 
   socket.emit('game-enter', {
     grid: world.grid.cells,
@@ -56,10 +57,10 @@ module.exports = Player = function(io, socket, world, user, cb) {
         }
         self.piece.eachSlot(function(x,y){
           world.grid.cells[y][x].navigable = false;
-          world.grid.cells[y][x].color = '#FFCD34' || self.piece.color;
+          world.grid.cells[y][x].color = self.piece.color || '#FFCD34';
         });
         world.checkLines();
-        self.getPiece();
+        self.getPiece(parseInt(world.width / 2));
       }
       io.sockets.emit('player-moved', { player: self });
     }

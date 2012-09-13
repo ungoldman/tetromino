@@ -6,11 +6,35 @@ var socket  = io.connect(window.location.hostname)
 
 socket.on('game-enter', function(data){
   world = data;
-  $('#lines').text(world.lines);
+  $('#world-lines').text(world.lines);
+  $('.' + world.player.username + ' .score').text('0');
+  $('#player-lines').text(0);
+
+  addPlayerToBoard(world.player);
+
+  for (var i = 0; i < world.others.length; i++) {
+    addPlayerToBoard(world.others[i])
+  }
+
+  function addPlayerToBoard(player) {
+    var $el = $('.leaderboard.stats'),
+      html;
+
+    if (player.username == world.player.username) {
+      html = 'you: <span class="score">' + player.score + '</span>';
+    } else {
+      html = player.username + ': <span class="score">' + player.score + '</span>';
+    }
+
+    $('<p class="' + player.username + '"/>').append(html).appendTo($el);
+  }
 
   socket.on('world-reset', function(data){
-    world.lines = data.lines;
     world.grid = data.grid;
+    world.lines = data.lines;
+    $('#world-lines').text(world.lines);
+    $('.' + world.player.username + ' .score').text('0');
+    $('#player-lines').text('0');
   });
 
   var directions = ['left','right']
@@ -38,6 +62,7 @@ socket.on('game-enter', function(data){
     socket.emit('player-rotate', { direction: 'right' });
   });
 
+  // not yet implemented
   key('space', function(e){
     e.preventDefault();
     socket.emit('player-drop');
@@ -71,7 +96,11 @@ socket.on('grid-updated', function(data) {
 });
 
 socket.on('line-cleared', function(data) {
-  $('#lines').text(data.lines);
+  $('#world-lines').text(data.lines);
+  var playerLines = parseInt($('#player-lines').text());
+  playerLines++;
+  $('.' + world.player.username + ' .score').text(playerLines);
+  $('#player-lines').text(playerLines);
 });
 
 socket.on('player-quit', function(data){
@@ -101,14 +130,13 @@ function drawGrid(){
 }
 
 function drawPieces(){
-  drawPiece(world.player.piece);
   var others = world.others;
   if (others.length == 0) return;
   for (var i = 0; i < others.length; i++) {
     if (others[i].id == world.player.id) continue;
-    console.log('drawing', others[i].id);
     drawPiece(others[i].piece);
   }
+  drawPiece(world.player.piece, true);
 }
 
 function drawLines(){
@@ -142,18 +170,21 @@ function eachSlot(piece, callback) {
   }
 }
 
-function drawPiece(piece){
+function drawPiece(piece, you){
   eachSlot(piece, function(x, y){
-    context.fillStyle = piece.color;
+    if (you) {
+      context.fillStyle = piece.color;
+    } else {
+      context.fillStyle = 'rgba(255,205,52,.3)';
+    }
     context.fillRect(x * 30, y * 30, 30, 30);
   });
 }
 
 function removePlayer(player) {
   for (var i = 0; i < world.others.length; i++) {
-    if (data.player.id == world.others[i].id) {
-      console.log('deleting', world.others[i].id);
-      delete world.others[i];
+    if (player.id == world.others[i].id) {
+      world.others.splice(i, 1);
     }
   }
 }

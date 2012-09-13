@@ -27,7 +27,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <%- js('base') %>
 <%
-  if(typeof(javascripts)!='undefined') {
+  if (typeof(javascripts) != 'undefined') {
     javascripts.forEach(function(script) {
       -%><%- js(script) %><%
     })

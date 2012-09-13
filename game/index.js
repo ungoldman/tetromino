@@ -6,11 +6,11 @@ var socketio = require('socket.io')
 var game = function(io, user) {
 
   var speed = 1;
-  var height = 18;
-  var width = 18;
 
   var world = {};
-  world.grid = new Grid(width, height);
+  world.height = 18;
+  world.width = 18;
+  world.grid = new Grid(world.width, world.height);
   world.players = [];
   world.lines = 0;
 
@@ -21,10 +21,9 @@ var game = function(io, user) {
   var removePlayer = function(socket) {
     for(var i = 0; i < world.players.length; i++) {
       if(world.players[i].id === socket.playerId) {
-        console.log('removing player', socket.playerId);
+        console.log(world.players[i].username, 'quitting game');
         world.players[i].destroy();
         world.players.splice(i, 1);
-        world.players.length;
       }
     }
   }
@@ -41,10 +40,10 @@ var game = function(io, user) {
           }
           player.piece.eachSlot(function(x,y){
             world.grid.cells[y][x].navigable = false;
-            world.grid.cells[y][x].color = '#FFCD34' || player.piece.color;
+            world.grid.cells[y][x].color = player.piece.color || '#FFCD34';
           });
           world.checkLines();
-          player.getPiece();
+          player.getPiece(parseInt(world.width / 2));
           io.sockets.emit('grid-updated', { grid: world.grid.cells });
         }
         io.sockets.emit('player-moved', { player: player });
@@ -79,16 +78,16 @@ var game = function(io, user) {
 
   function clearLine(line) {
     world.grid.cells.splice(line, 1);
-    world.grid.cells.unshift(new Grid(width, height).cells[0]);
+    world.grid.cells.unshift(new Grid(world.width, world.height).cells[0]);
     world.lines++;
     io.sockets.emit('line-cleared', { lines: world.lines });
   }
 
   world.reset = function(){
     world.lines = 0;
-    world.grid = new Grid(width, height);
+    world.grid = new Grid(world.width, world.height);
     world.players.forEach(function(player){
-      player.getPiece();
+      player.getPiece(parseInt(world.width / 2));
     });
     io.sockets.emit('world-reset', {
       grid: world.grid.cells,

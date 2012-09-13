@@ -1,15 +1,19 @@
 var autoId = 0;
 
-module.exports = Piece = function(){
+module.exports = Piece = function(start){
   var type = this.randomType();
 
+  console.log(start);
+
   this.id        = 'piece' + autoId++;
-  this.x         = 4;
+  this.x         = start ? start - 1 : 4;
   this.y         = 0;
   this.rotation  = 0;
   this.color     = pieces[type].color;
   this.positions = pieces[type].positions;
   this.type      = pieces[type].name;
+
+  console.log(this.x, this.y);
 
   return this;
 };

@@ -247,9 +247,9 @@ app.get('/1p', ensureAuthenticated, function(req, res){
   });
 });
 
-app.get('/2p', function(req, res){
+app.get('/*p', function(req, res){
   res.render('canvas', {
-    name: 'Tetromino | 2P',
+    name: 'Tetromino | *P',
     javascripts: ['client']
   });
 });
@@ -275,4 +275,4 @@ var user = {
 }
 
 /* game (socket) server */
-var game = require('./game').listen(server, user);
+var game = require('./game').listen(server);
