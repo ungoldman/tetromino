@@ -27,14 +27,29 @@ module.exports = Player = function(io, socket, world, user) {
 
   this.getPiece(parseInt(world.width / 2));
 
-  console.log(self.username, 'joining game');
+  socket.on('username', function(data){
 
-  socket.emit('game-enter', {
-    grid: world.grid.cells,
-    player: self,
-    others: world.players,
-    lines: world.lines
-  });
+    for (var i = 0; i < world.players.length; i++) {
+      if (data == world.players[i].username) {
+        self.destroy();
+        world.players.splice(i, 1);
+        socket.emit('nope');
+        socket.disconnect();
+        console.log(data, ' denied access');
+        return;
+      }
+    }
+
+    self.username = data;
+    console.log(self.username, 'joining game');
+
+    socket.emit('game-enter', {
+      grid: world.grid.cells,
+      player: self,
+      others: world.players,
+      lines: world.lines
+    });
+  })
 
   io.sockets.emit('player-joined', { player: self });
   // io.sockets.emit('player-moved',  { player: player });

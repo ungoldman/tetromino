@@ -4,6 +4,12 @@ var socket  = io.connect(window.location.hostname)
   , world
   , blockSize = 30;
 
+socket.emit('username', $('.username').text());
+
+socket.on('nope', function(){
+  $('#access-denied').modal();
+});
+
 socket.on('game-enter', function(data){
   world = data;
   $('#world-lines').text(world.lines);
@@ -55,46 +61,49 @@ socket.on('game-enter', function(data){
     socket.emit('player-drop');
   })
 
+  gameOn();
   render();
 });
 
-socket.on('player-joined', function(data) {
-  world.others.push(data.player);
-  addPlayerToBoard(data.player);
-});
+function gameOn() {
+  socket.on('player-joined', function(data) {
+    world.others.push(data.player);
+    addPlayerToBoard(data.player);
+  });
 
-socket.on('player-moved', function(data) {
-  var you = false;
-  if(data.player.id === world.player.id) {
-    world.player.piece = data.player.piece;
-    you = true;
-  } else {
-    for (var i = 0; i < world.others.length; i++) {
-      if (data.player.id == world.others[i].id) {
-        world.others[i].piece = data.player.piece;
+  socket.on('player-moved', function(data) {
+    var you = false;
+    if(data.player.id === world.player.id) {
+      world.player.piece = data.player.piece;
+      you = true;
+    } else {
+      for (var i = 0; i < world.others.length; i++) {
+        if (data.player.id == world.others[i].id) {
+          world.others[i].piece = data.player.piece;
+        }
       }
     }
-  }
-  render();
-});
+    render();
+  });
 
-socket.on('grid-updated', function(data) {
-  world.grid = data.grid;
-  render();
-});
+  socket.on('grid-updated', function(data) {
+    world.grid = data.grid;
+    render();
+  });
 
-socket.on('line-cleared', function(data) {
-  $('#world-lines').text(data.lines);
-  var playerLines = parseInt($('#player-lines').text());
-  playerLines++;
-  $('.' + world.player.username + ' .score').text(playerLines);
-  $('#player-lines').text(playerLines);
-});
+  socket.on('line-cleared', function(data) {
+    $('#world-lines').text(data.lines);
+    var playerLines = parseInt($('#player-lines').text());
+    playerLines++;
+    $('.' + world.player.username + ' .score').text(playerLines);
+    $('#player-lines').text(playerLines);
+  });
 
-socket.on('player-quit', function(data){
-  removePlayer(data.player);
-  render();
-});
+  socket.on('player-quit', function(data){
+    removePlayer(data.player);
+    render();
+  });
+}
 
 function render(){
   drawGrid();
@@ -180,15 +189,9 @@ function removePlayer(player) {
 
 function addPlayerToBoard(player) {
   var $el = $('.leaderboard.stats'),
-    html;
+    html = player.username + ': <span class="score">' + player.score + '</span>';
 
   if ($('.' + player.username).length > 0) return;
-
-  if (player.username == world.player.username) {
-    html = 'you: <span class="score">' + player.score + '</span>';
-  } else {
-    html = player.username + ': <span class="score">' + player.score + '</span>';
-  }
 
   $('<p class="' + player.username + '"/>').append(html).appendTo($el);
 }

@@ -88,6 +88,12 @@ function checkUser(user, cb){
   });
 }
 
+function addScore(user, score, cb){
+  authDb.view('user/byUsername', {key: user}, function(err, result) {
+    if(result.length > 0){ cb(result); } else { cb(null); };
+  });
+};
+
 // Password hash
 function getHash(passwd, cb){
   crypto.pbkdf2(passwd, "deSalt", 2048, 40, cb);
@@ -214,7 +220,8 @@ app.post('/register', function(req, res){
           authDb.save({
             username: user,
             password: hash,
-            email: email
+            email: email,
+            highscore : null
           },
           function(err, result) {
             if(err) throw err;
@@ -230,6 +237,37 @@ app.post('/register', function(req, res){
   } else {
     res.redirect('/');
   }
+});
+
+app.post('/score', function(req, res){
+  var username = req.user.username;
+  var score = req.body.score;
+
+  // Grab users data from db
+  addScore(username, score, function(result){
+    var highScore = result[0].value.highscore;
+    var id = result[0].value._id;
+    // Set our newHighScore check var to false initially
+    var newHighScore = false;
+    // Make sure a null value wasn't set in the db or has no value set
+    if(highScore != null){
+      // If the current index is less than the score from the most
+      // recent game set that index equal to the new score and break
+      if(parseInt(highScore) < parseInt(score)){
+        authDb.merge(id, { highscore : score }, function(err, status) {
+          if (!err) res.send('OK');
+          else res.send('ERROR');
+        });
+      }
+    // If our user has no high score record then we'll just save thier highscore
+    } else {
+        authDb.merge(id, { highscore : score }, function(err, status) {
+          if (!err) res.send('OK');
+          else res.send('ERROR');
+        });
+    };
+
+  });
 });
 
 app.get('/logout', function(req, res){

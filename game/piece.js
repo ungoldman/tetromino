@@ -3,8 +3,6 @@ var autoId = 0;
 module.exports = Piece = function(start){
   var type = this.randomType();
 
-  console.log(start);
-
   this.id        = 'piece' + autoId++;
   this.x         = start ? start - 1 : 4;
   this.y         = 0;
@@ -12,8 +10,6 @@ module.exports = Piece = function(start){
   this.color     = pieces[type].color;
   this.positions = pieces[type].positions;
   this.type      = pieces[type].name;
-
-  console.log(this.x, this.y);
 
   return this;
 };
