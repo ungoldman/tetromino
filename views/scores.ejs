@@ -1,6 +1,12 @@
-<ul>
+<h1>High Scores</h1>
+<table class="high-scores">
+<thead>
+  <tr><td>User</td><td>Score</td></tr>
+</thead>
+<tbody>
 <% 
   scores.forEach(function(score){
-%><li><%= score.username %>:<%= score.highscore %></li>
+%><tr><td><%= score.username %></td><td><%= score.highscore %></td></tr>
 <%  }); %>
-</ul>
+</tbody>
+</table>
