@@ -249,49 +249,27 @@ app.post('/score', function(req, res){
   var username = req.user.username;
   var score = req.body.score;
   
-  console.log('User: ' + username + ' got a highscore of: ' + score);
-  
   // Grab users data from db
   addScore(username, score, function(result){
-    console.log('User score is ' + score);
-    // Init an array for the highscore
-    var highScores = [];
-    // Set highScores empty array equal to highscores from the db
-    var highScores = result[0].value.highscores;
-    console.log(highScores);
+    console.log('User: ' + username + ' got a score of: ' + score);
+    var highScore = result[0].value.highscore;
+    var id = result[0].value._id;
     // Set our newHighScore check var to false initially
     var newHighScore = false;
     // Make sure a null value wasn't set in the db or has no value set
-    if(highScores != null && highScores.length > 0){
-      // Loop through each index of the highScores array and compare 
-      // each index to the score captured from the latest game
-      console.log(highScores.length);
-      for(i = 0; i < highScores.length; i++){
-        // If the current index is less than the score from the most 
-        // recent game set that index equal to the new score and break
-        // from the loop because we found a score which the user beat,
-        // we then set newHighScore to true
-        if(parseInt(highScores[i]) < parseInt(score)){
-          console.log(highScores[i]);
-          highScores[i] = score;
-          console.log(highScores[i]);
-          newHighScore = true;
-          break;
-        }
-      }
-
-      // If we have a new highScore we need to save it to the db 
-      if(newHighScore == true){
-        console.log(newHighScore);
-        console.log('After for Loop score ' + highScores);
-        authDb.merge(username, { highscores : highScores }, function(err, status) {
+    if(highScore != null){
+      // If the current index is less than the score from the most 
+      // recent game set that index equal to the new score and break
+      if(parseInt(highScore) < parseInt(score)){
+        console.log(username);  
+        authDb.merge(id, { highscore : score }, function(err, status) {
           console.log(err, status, username);
         });
       }
     // If our user has no high score record then we'll just save thier highscore
     } else {
         console.log('Score of ' + score + ' for '+ username +' wasnt a high score');
-        authDb.merge(username, { highscores : score }, function(err, status) {
+        authDb.merge(id, { highscore : score }, function(err, status) {
           console.log(status);
         });
     };
