@@ -105,7 +105,7 @@ function getHighScores(cb){
       allHighScores.push(user);
     });
      cb(allHighScores);
-  });  
+  });
 };
 
 // Password hash
@@ -310,7 +310,7 @@ app.get('/*p', ensureAuthenticated, function(req, res){
 app.get('/scores', function(req, res){
   getHighScores(function(allHighScores){
     res.render('scores', {
-      scores: allHighScores 
+      scores: allHighScores
     });
   });
 });
