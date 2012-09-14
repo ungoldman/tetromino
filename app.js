@@ -94,6 +94,20 @@ function addScore(user, score, cb){
   });
 };
 
+function getHighScores(cb){
+  authDb.view('byHighScore/byHighScore', function(err, result) {
+    var allHighScores = [];
+    result.forEach(function(row){
+      var user = {
+        username : row.username,
+        highscore: row.highscore
+      };
+      allHighScores.push(user);
+    });
+     cb(allHighScores);
+  });  
+};
+
 // Password hash
 function getHash(passwd, cb){
   crypto.pbkdf2(passwd, "deSalt", 2048, 40, cb);
@@ -290,6 +304,14 @@ app.get('/*p', ensureAuthenticated, function(req, res){
   res.render('canvas', {
     name: 'Tetromino | *P',
     javascripts: ['client']
+  });
+});
+
+app.get('/scores', function(req, res){
+  getHighScores(function(allHighScores){
+    res.render('scores', {
+      scores: allHighScores 
+    });
   });
 });
 
