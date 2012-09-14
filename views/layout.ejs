@@ -10,15 +10,17 @@
 
 <div class="main container cf">
 
-  <%- include _nav %>
+<% include _nav -%>
 
-  <% if (typeof(messages) != 'undefined') { %>
-    <%- include _errors %>
-  <% } %>
+<%
+  if (typeof(messages) != 'undefined') {
+    -%><% include _errors -%><%
+  }
+-%>
 
-  <%- body %>
+<%- body -%>
 
-  <% include _modals %>
+<% include _modals -%>
 
 </div>
 

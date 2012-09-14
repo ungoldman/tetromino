@@ -164,6 +164,7 @@ app.all('*', loadAuthentication);
 
 app.get('/', function(req, res){
   res.render('index', {
+    name: 'Tetromino',
     messages: req.flash('error')
   });
 });
@@ -240,14 +241,14 @@ app.get('/logout', function(req, res){
  * game routes
 *******************************************************************************/
 
-app.get('/1p', ensureAuthenticated, function(req, res){
+app.get('/1p', function(req, res){
   res.render('canvas', {
     name: 'Tetromino | 1P',
     javascripts: ['client']
   });
 });
 
-app.get('/*p', function(req, res){
+app.get('/*p', ensureAuthenticated, function(req, res){
   res.render('canvas', {
     name: 'Tetromino | *P',
     javascripts: ['client']
@@ -268,11 +269,6 @@ var server = app.listen(app.get('port'), function(){
   ];
   console.log(hello[0], hello[1], hello[2], hello[3]);
 });
-
-/* fake user */
-var user = {
-  name: 'Chuck'
-}
 
 /* game (socket) server */
 var game = require('./game').listen(server);

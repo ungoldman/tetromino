@@ -2,6 +2,7 @@
   background: rgba(255, 255, 255, .3);
   border: 1px solid rgba(0, 0, 0, .1);
   border-top: none;
+  min-height: 541px;
   position: relative;
 }
 
@@ -24,7 +25,9 @@
 .stats h2 {
   font-size: 20px;
   font-weight: bold;
-  background: #776;
+  background: url(/img/interface/header_bg.png);
+  border: 1px solid rgba(0, 0, 0, .1);
+  border-width: 1px 0;
   color: #ffe;
   padding: 0 0 0 30px;
 }
@@ -41,6 +44,10 @@
 
 .player.stats {
   right: 0;
+}
+
+.player.stats h2 {
+  background-position: right top;
 }
 
 .player.stats .lines {}
