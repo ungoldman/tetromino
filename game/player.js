@@ -52,7 +52,6 @@ module.exports = Player = function(io, socket, world, user) {
   })
 
   io.sockets.emit('player-joined', { player: self });
-  // io.sockets.emit('player-moved',  { player: player });
 
   socket.on('player-move', function(data){
     if (self.piece) {
@@ -67,7 +66,7 @@ module.exports = Player = function(io, socket, world, user) {
       var piece = self.piece.fall(world.grid);
       if (!piece) {
         if (self.piece.checkCollision(world.grid) && self.piece.y == 0) {
-          world.reset();
+          world.gameOver();
           return;
         }
         self.piece.eachSlot(function(x,y){
@@ -79,6 +78,11 @@ module.exports = Player = function(io, socket, world, user) {
       }
       io.sockets.emit('player-moved', { player: self });
     }
+  });
+
+  socket.on('increment-score', function(){
+    self.score++;
+    io.sockets.emit('player-score-updated', self);
   });
 
   socket.on('player-rotate', function(data){

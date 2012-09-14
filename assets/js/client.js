@@ -95,14 +95,28 @@ function gameOn() {
     $('#world-lines').text(data.lines);
     var playerLines = parseInt($('#player-lines').text());
     playerLines++;
-    $('.' + world.player.username + ' .score').text(playerLines);
     $('#player-lines').text(playerLines);
+    socket.emit('increment-score');
   });
+
+  socket.on('player-score-updated', function(player){
+    $('.' + player.username + ' .score').text(player.score);
+    console.log('score updated');
+  })
 
   socket.on('player-quit', function(data){
     removePlayer(data.player);
     render();
   });
+
+  socket.on('game-over', function(){
+    socket.disconnect();
+    var lines = $('#player-lines').text();
+    $.post('/score', { score: lines }, function(data){
+      console.log(data);
+    });
+    $('#game-over').find('.score').text(lines).end().modal();
+  })
 }
 
 function render(){

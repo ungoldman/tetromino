@@ -35,7 +35,7 @@ var game = function(io, user) {
         var piece = player.piece.fall(world.grid);
         if (!piece) {
           if (player.piece.checkCollision(world.grid) && player.piece.y == 0) {
-            world.reset();
+            world.gameOver();
             return;
           }
           player.piece.eachSlot(function(x,y){
@@ -81,6 +81,11 @@ var game = function(io, user) {
     world.grid.cells.unshift(new Grid(world.width, world.height).cells[0]);
     world.lines++;
     io.sockets.emit('line-cleared', { lines: world.lines });
+  }
+
+  world.gameOver = function(){
+    io.sockets.emit('game-over');
+    world.reset();
   }
 
   world.reset = function(){
