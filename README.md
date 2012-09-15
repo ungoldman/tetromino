@@ -4,6 +4,13 @@
 
 Live demo: (tetromino.jit.su)[http://tetromino.jit.su]
 
+## Todo
+
+* Proper scoring
+* Style pieces (bevel and such)
+* Limit number of players? (using socket.io rooms)
+* Custom games? (grid size, starting level, generate junk blocks)
+
 ### Authors:
 
 Nate Goldman
