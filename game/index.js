@@ -136,6 +136,14 @@ function game(io, user) {
 module.exports = {
   listen: function(server, user) {
     var io = socketio.listen(server, { "log level": 1 });
+
+    if(process.env.LONG_POLLING_REQUIRED){
+      io.configure(function () {
+        io.set("transports", ["xhr-polling"]);
+        io.set("polling duration", 10);
+      });
+    }
+
     return game(io, user);
   }
 };

@@ -114,6 +114,10 @@ function gameOn() {
       console.log(data);
     });
     $('#game-over').find('.score').text(lines).end().modal();
+    key('enter', function(e){
+      e.preventDefault();
+      window.top.location = '/scores';
+    });
   });
 
   socket.on('world-reset', function(data){

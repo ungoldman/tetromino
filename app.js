@@ -298,7 +298,7 @@ app.get('/logout', function(req, res){
  * game routes
 *******************************************************************************/
 
-app.get('/*p', ensureAuthenticated, function(req, res){
+app.get('/play', ensureAuthenticated, function(req, res){
   res.render('canvas', {
     name: 'Tetromino | *P',
     javascripts: ['client']

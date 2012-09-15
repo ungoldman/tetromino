@@ -1,6 +1,6 @@
 {
   "name": "tetromino",
-  "version": "0.0.2-1",
+  "version": "0.0.2-2",
   "authors": [
     {
       "name": "Nate Goldman",
@@ -31,7 +31,6 @@
     "socket.io": "~0.9.10",
     "cradle": "~0.6.3",
     "connect-flash": "~0.1.0",
-    "async": "~0.1.22",
     "passport": "~0.1.12",
     "passport-local": "~0.1.6"
   },
