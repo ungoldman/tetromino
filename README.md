@@ -13,9 +13,9 @@ Live demo: (tetromino.jit.su)[http://tetromino.jit.su]
 
 ### Authors:
 
-Nate Goldman
-Sean Harvey
-Chan Park
+* [Nate Goldman](http://github.com/ngoldman)
+* [Sean Harvey](http://github.com/sean4500)
+* [Chan Park](http://github.com/thesarcasm)
 
 ### Inspired by:
 
