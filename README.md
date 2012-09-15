@@ -2,9 +2,10 @@
 
 ## Multi-player Tetris
 
-Live demo: [tetromino.jit.su](http://tetromino.jit.su)
+Live demo on nodejitsu: [tetromino.jit.su](http://tetromino.jit.su)
+Mirror on heroku (long-polling only): [tetromino.herokuapp.com](http://tetromino.herokuapp.com)
 
-## Todo
+### Todo
 
 * Proper scoring
 * Style pieces (bevel and such)
