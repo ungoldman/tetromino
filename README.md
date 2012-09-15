@@ -1,9 +1,11 @@
 # Tetromino
 
-## Multi-player Tetris
+Multi-player Tetris!
 
-Live demo on nodejitsu: [tetromino.jit.su](http://tetromino.jit.su)
-Mirror on heroku (long-polling only): [tetromino.herokuapp.com](http://tetromino.herokuapp.com)
+### Servers
+
+* Live demo on nodejitsu: [tetromino.jit.su](http://tetromino.jit.su)
+* Mirror on heroku (long-polling only): [tetromino.herokuapp.com](http://tetromino.herokuapp.com)
 
 ### Todo
 
