@@ -92,25 +92,33 @@ function addScore(user, score, cb){
   authDb.view('user/byUsername', {key: user}, function(err, result) {
     if(result.length > 0){ cb(result); } else { cb(null); };
   });
-};
+}
 
 function getHighScores(cb){
-  authDb.view('byHighScore/byHighScore', function(err, result) {
+  authDb.view('user/byHighscore', function(err, result) {
     var allHighScores = [];
+
     result.forEach(function(row){
       var user = {
-        username : row.username,
-        highscore: row.highscore
+        username  : row.username,
+        highscore : row.highscore
       };
       allHighScores.push(user);
     });
-     cb(allHighScores);
+
+    function compare(a,b) {
+      return b.highscore - a.highscore;
+    }
+
+    allHighScores = allHighScores.sort(compare);
+
+    cb(allHighScores);
   });
-};
+}
 
 // Password hash
-function getHash(passwd, cb){
-  crypto.pbkdf2(passwd, "deSalt", 2048, 40, cb);
+function getHash(password, cb){
+  crypto.pbkdf2(password, 'deSalt', 2048, 40, cb);
 }
 
 passport.serializeUser(function(user, done) {
@@ -156,7 +164,6 @@ passport.use(new LocalStrategy(
 // loads some useful local variables
 function loadAuthentication(req, res, next) {
   res.locals({
-    name: 'Tetromino',
     currentPath: req.url,
     currentUser: req.user ? req.user.username : null,
     authenticated: req.isAuthenticated()
@@ -184,7 +191,6 @@ app.all('*', loadAuthentication);
 
 app.get('/', function(req, res){
   res.render('index', {
-    name: 'Tetromino',
     messages: req.flash('error')
   });
 });
@@ -243,7 +249,8 @@ app.post('/register', function(req, res){
             res.redirect('/');
           });
         });
-      };
+      }
+
       if (errors > 0) {
         res.redirect('/');
       }
@@ -254,33 +261,31 @@ app.post('/register', function(req, res){
 });
 
 app.post('/score', function(req, res){
-  var username = req.user.username;
-  var score = req.body.score;
+  var username = req.user.username
+    , score    = req.body.score;
 
   // Grab users data from db
   addScore(username, score, function(result){
-    var highScore = result[0].value.highscore;
-    var id = result[0].value._id;
-    // Set our newHighScore check var to false initially
-    var newHighScore = false;
+    var highScore = result[0].value.highscore
+      , userId    = result[0].value._id;
+
     // Make sure a null value wasn't set in the db or has no value set
-    if(highScore != null){
+    if (highScore != null) {
       // If the current index is less than the score from the most
       // recent game set that index equal to the new score and break
       if(parseInt(highScore) < parseInt(score)){
-        authDb.merge(id, { highscore : score }, function(err, status) {
+        authDb.merge(userId, { highscore : score }, function(err, status) {
           if (!err) res.send('OK');
           else res.send('ERROR');
         });
       }
     // If our user has no high score record then we'll just save thier highscore
     } else {
-        authDb.merge(id, { highscore : score }, function(err, status) {
-          if (!err) res.send('OK');
-          else res.send('ERROR');
-        });
-    };
-
+      authDb.merge(userId, { highscore : score }, function(err, status) {
+        if (!err) res.send('OK');
+        else res.send('ERROR');
+      });
+    }
   });
 });
 
@@ -292,13 +297,6 @@ app.get('/logout', function(req, res){
 /*
  * game routes
 *******************************************************************************/
-
-app.get('/1p', function(req, res){
-  res.render('canvas', {
-    name: 'Tetromino | 1P',
-    javascripts: ['client']
-  });
-});
 
 app.get('/*p', ensureAuthenticated, function(req, res){
   res.render('canvas', {

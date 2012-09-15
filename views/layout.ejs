@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title><%= name %></title>
+  <title>Tetromino</title>
   <%- css('base') %>
   <%- js('lib/prefixfree') %>
 </head>
@@ -12,11 +12,9 @@
 
 <% include _nav -%>
 
-<%
-  if (typeof(messages) != 'undefined') {
-    -%><% include _errors -%><%
-  }
--%>
+<% if (typeof(messages) != 'undefined') {
+  -%><% include _errors -%><%
+} -%>
 
 <%- body -%>
 
@@ -24,17 +22,13 @@
 
 </div>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <%- js('base') %>
-<%
-  if (typeof(javascripts) != 'undefined') {
-    javascripts.forEach(function(script) {
-      -%><%- js(script) %><%
-    })
-  }
--%>
+<% if (typeof(javascripts) != 'undefined') {
+  javascripts.forEach(function(script) {
+    -%><%- js(script) %><%
+  })
+} -%>
 
 </body>
 </html>

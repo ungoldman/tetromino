@@ -1,5 +1,5 @@
 var Piece  = require('./piece')
-  , autoId = 0;
+  , autoId = 1;
 
 module.exports = Player = function(io, socket, world, user) {
   var self = this;
@@ -47,7 +47,7 @@ module.exports = Player = function(io, socket, world, user) {
       grid: world.grid.cells,
       player: self,
       others: world.players,
-      lines: world.lines
+      level: world.level
     });
   })
 

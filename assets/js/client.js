@@ -1,8 +1,8 @@
-var socket  = io.connect(window.location.hostname)
-  , canvas  = $('#canvas').get(0)
-  , context = canvas.getContext('2d')
-  , world
-  , blockSize = 30;
+var socket    = io.connect(window.location.hostname)
+  , canvas    = $('#canvas')
+  , context   = canvas.get(0).getContext('2d')
+  , blockSize = 30
+  , world;
 
 socket.emit('username', $('.username').text());
 
@@ -12,7 +12,7 @@ socket.on('nope', function(){
 
 socket.on('game-enter', function(data){
   world = data;
-  $('#world-lines').text(world.lines);
+  $('#world-level').text(world.level);
   $('.' + world.player.username + ' .score').text('0');
   $('#player-lines').text(0);
 
@@ -21,14 +21,6 @@ socket.on('game-enter', function(data){
   for (var i = 0; i < world.others.length; i++) {
     addPlayerToBoard(world.others[i])
   }
-
-  socket.on('world-reset', function(data){
-    world.grid = data.grid;
-    world.lines = data.lines;
-    $('#world-lines').text(world.lines);
-    $('.' + world.player.username + ' .score').text('0');
-    $('#player-lines').text('0');
-  });
 
   var directions = ['left','right']
     , controls   = ['left, a','right, d'];
@@ -91,8 +83,9 @@ function gameOn() {
     render();
   });
 
-  socket.on('line-cleared', function(data) {
-    $('#world-lines').text(data.lines);
+  socket.on('line-cleared', function() {
+    // world.level = data.level;
+    // $('#world-level').text(data.level);
     var playerLines = parseInt($('#player-lines').text());
     playerLines++;
     $('#player-lines').text(playerLines);
@@ -109,6 +102,11 @@ function gameOn() {
     render();
   });
 
+  socket.on('level-up', function(data){
+    world.level = data.level;
+    $('#world-level').text(world.level);
+  });
+
   socket.on('game-over', function(){
     socket.disconnect();
     var lines = $('#player-lines').text();
@@ -116,7 +114,15 @@ function gameOn() {
       console.log(data);
     });
     $('#game-over').find('.score').text(lines).end().modal();
-  })
+  });
+
+  socket.on('world-reset', function(data){
+    world.grid = data.grid;
+    world.level = data.level;
+    $('#world-level').text(world.level);
+    $('.' + world.player.username + ' .score').text('0');
+    $('#player-lines').text('0');
+  });
 }
 
 function render(){
@@ -130,7 +136,10 @@ function drawGrid(){
   var width    = parseInt(world.grid[0].length);
   var height   = parseInt(world.grid.length);
 
-  $('#canvas').attr({ width: width * distance + 1, height: height * distance + 1 });
+  canvas.attr({
+    width  : width  * distance + 1,
+    height : height * distance + 1
+  });
 
   for (var x = 0; x < width; x++) {
     for (var y = 0; y < height; y++) {
@@ -155,7 +164,7 @@ function drawLines(){
   var width    = parseInt(world.grid[0].length) * distance;
   var height   = parseInt(world.grid.length) * distance;
 
-  context.strokeStyle = "#1B2841";
+  context.strokeStyle = "#1b2841";
 
   // draw lines
   for (var x = 0; x <= width + 1; x += distance) {
@@ -181,13 +190,10 @@ function eachSlot(piece, callback) {
   }
 }
 
-function drawPiece(piece, you){
+function drawPiece(piece, you) {
   eachSlot(piece, function(x, y){
-    if (you) {
-      context.fillStyle = piece.color;
-    } else {
-      context.fillStyle = 'rgba(255,205,52,.3)';
-    }
+    if (you) context.fillStyle = piece.color;
+    else context.fillStyle = 'rgba(255,205,52,.3)';
     context.fillRect(x * 30, y * 30, 30, 30);
   });
 }
@@ -202,8 +208,8 @@ function removePlayer(player) {
 }
 
 function addPlayerToBoard(player) {
-  var $el = $('.leaderboard.stats'),
-    html = player.username + ': <span class="score">' + player.score + '</span>';
+  var $el  = $('.leaderboard.stats')
+    , html = player.username + ': <span class="score">' + player.score + '</span>';
 
   if ($('.' + player.username).length > 0) return;
 

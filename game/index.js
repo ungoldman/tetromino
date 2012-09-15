@@ -1,24 +1,24 @@
 var socketio = require('socket.io')
   , Grid     = require('./grid')
-  , Player   = require('./player')
-  , Piece    = require('./piece');
+  , Player   = require('./player');
 
-var game = function(io, user) {
-
-  var speed = 1;
+function game(io, user) {
 
   var world = {};
-  world.height = 18;
-  world.width = 18;
-  world.grid = new Grid(world.width, world.height);
   world.players = [];
-  world.lines = 0;
+  world.height  = 18;
+  world.width   = 18;
+  world.grid    = new Grid(world.width, world.height);
+  world.lines   = 0;
+  world.level   = 1;
+  world.loop    = false;
 
-  var addPlayer = function(io, socket) {
+  function addPlayer(io, socket) {
+    if (!world.loop) world.reset();
     world.players.push(new Player(io, socket, world, user));
   }
 
-  var removePlayer = function(socket) {
+  function removePlayer(socket) {
     for(var i = 0; i < world.players.length; i++) {
       if(world.players[i].id === socket.playerId) {
         console.log(world.players[i].username, 'quitting game');
@@ -26,9 +26,12 @@ var game = function(io, user) {
         world.players.splice(i, 1);
       }
     }
+    if (!!world.players.length) world.gameOver();
   }
 
-  var movePieces = function() {
+  function movePieces() {
+    if (!world.players.length) return false;
+
     world.players.forEach(function(player){
       if (player.piece) {
         var oldId = player.piece.id;
@@ -73,6 +76,9 @@ var game = function(io, user) {
         clearLine(line);
       });
     }
+
+    checkLevel();
+
     io.sockets.emit('grid-updated', { grid: world.grid.cells });
   }
 
@@ -80,27 +86,43 @@ var game = function(io, user) {
     world.grid.cells.splice(line, 1);
     world.grid.cells.unshift(new Grid(world.width, world.height).cells[0]);
     world.lines++;
+    // TODO: track each player score separately
     io.sockets.emit('line-cleared', { lines: world.lines });
+  }
+
+  function checkLevel() {
+    var newLevel = parseInt(world.lines / 10) + 1;
+
+    if (newLevel !== world.level) {
+      world.level = newLevel;
+      clearInterval(world.loop);
+      world.loop = setInterval( movePieces, 300 / ( world.level / 2 ) );
+      io.sockets.emit('level-up', { level: world.level });
+    }
   }
 
   world.gameOver = function(){
     io.sockets.emit('game-over');
-    world.reset();
+    clearInterval(world.loop);
+    world.loop = false;
   }
 
   world.reset = function(){
     world.lines = 0;
+    world.level = 1;
     world.grid = new Grid(world.width, world.height);
+
     world.players.forEach(function(player){
       player.getPiece(parseInt(world.width / 2));
     });
+
+    world.loop = setInterval( movePieces, 300 / ( world.level / 2 ) );
+
     io.sockets.emit('world-reset', {
       grid: world.grid.cells,
-      lines: world.lines
+      level: world.level
     });
   }
-
-  world.gameLoop = setInterval( movePieces, 300 / ( speed / 2 ) );
 
   io.on('connection', function(socket) {
     addPlayer(io, socket);
