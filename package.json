@@ -1,6 +1,6 @@
 {
-  "name": "tetromino-test",
-  "version": "0.0.1-21",
+  "name": "tetromino",
+  "version": "0.0.2",
   "authors": [
     {
       "name": "Nate Goldman",
@@ -43,5 +43,5 @@
     "type": "git",
     "url": "git://github.com/nodebros/tetromino.git"
   },
-  "subdomain": "tetromino-test"
+  "subdomain": "tetromino"
 }
