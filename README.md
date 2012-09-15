@@ -2,7 +2,7 @@
 
 ## Multi-player Tetris
 
-Live demo: (tetromino.jit.su)[http://tetromino.jit.su]
+Live demo: [tetromino.jit.su](http://tetromino.jit.su)
 
 ## Todo
 
